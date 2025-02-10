@@ -169,3 +169,14 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+
+/config.json
+/meta.json
+/onemain.py
+/testMastery_v0.py
+/testMastery_v1.py
+/test_focus.py
+/v0__init__.py
+/v1__init__ .py
+/__pycache__

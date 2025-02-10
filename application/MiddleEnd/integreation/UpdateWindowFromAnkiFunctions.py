@@ -1,0 +1,211 @@
+from application.MiddleEnd.MasteryDatahandler import MasteryDataHandler
+from application.FrontEnd.B_WidgetsFolder.WidgetInitializations.WidgetInitialization import *
+from application.MiddleEnd.integreation.MasterTypes import *
+from application.MiddleEnd.integreation.UserTemplateInfoFunctions import *
+
+import aqt
+from aqt import mw
+from aqt.qt import *
+from aqt.reviewer import Reviewer
+from anki.cards import Card
+from anki.notes import Note
+from aqt import gui_hooks
+import anki.template
+from anki.template import TemplateRenderOutput, TemplateRenderContext
+from anki.hooks import wrap
+from aqt.utils import showInfo, showInfo, qconnect
+from anki.hooks import addHook
+from anki import hooks
+
+
+
+
+
+def add_note_types_to_comboBox():
+    note_type_drop_down.clear()
+    
+    note_types = mw.col.models.all_names_and_ids()
+    
+    for note_type in note_types:
+        # note_type_drop_down.addItem(f"{note_type.name}, {note_type.id}")
+        note_type_drop_down.addItem(note_type.name, NoteTypeItem(note_type.name, note_type.id))
+        
+    # print("UPDATED COMBOX")
+
+
+        
+        
+masteryDatahandler = MasteryDataHandler("C:\\Users\\epics\\AppData\\Roaming\\Anki2\\addons21\\myAddOn\\user_files\\masteryData.json")
+
+
+def get_selected_note_type_from_drop_down() -> NoteTypeItem:
+    return note_type_drop_down.currentData()
+
+
+def get_note_type_info(row:int) -> NoteTypeItem:
+    # Handle both highlighted and activated signals
+    # print(f"row: {row}")
+    if row is None:
+        # Activated signal was triggered
+        result = get_selected_note_type_from_drop_down()
+    else:
+        # Highlighted signal was triggered
+        result = note_type_drop_down.itemData(row)
+    return  result
+
+def get_note_type_templates(note_type_item: NoteTypeItem):
+        # print(f"Loading data for: {note_type_item.note_type_name} (ID: {note_type_item.note_type_id})")
+        # mw.col.models.get(noteitem.note_id) --> dict_keys(['id', 'name', 'type', 'mod', 'usn', 'sortf', 'did', 'tmpls', 'flds', 'css', 'latexPre', 'latexPost', 'latexsvg', 'req'])
+        
+        # mw.col.models.get(noteitem.note_id)["tmpls"][0].keys() --> dict_keys(['name', 'ord', 'qfmt', 'afmt', 'bqfmt', 'bafmt', 'did', 'bfont', 'bsize', 'id'])
+        templates = mw.col.models.get(note_type_item.note_type_id)["tmpls"]
+        return templates
+
+
+# def get_mastery_data(note_type_item: NoteTypeItem):
+#     print(masteryDatahandler.get_note_type_mastery(note_type_item.note_type_id))
+#     print(masteryDatahandler.data)
+
+
+
+def load_templates_from_Json(templates: List, note_type_item: NoteTypeItem):
+    # Check if note_type has templates stored in MasteryData
+    # If it does store the info
+    # else default values
+    # Get rep count for templates from the note type from MasteryDataJson
+
+    for index, template in enumerate(templates):
+        # print(template)
+        template_name = template["name"]
+        id = template["id"]
+        
+        rep_count = 0
+        
+        if masteryDatahandler.is_template_in_note_type(note_type_item.note_type_id, template_name):
+            saved_rep_count = masteryDatahandler.get_note_type_template_rep_count(note_type_item.note_type_id, template_name)
+            rep_count = saved_rep_count
+            
+        
+        item = EditableTemplateListItem(index, template_name, id, rep_count)
+        template_levels_list.addMasteryItem(item)
+        # print(f"LOADED FROM JSON | {index, template_name, id, rep_count}")
+    
+
+
+def load_templates_with_defaults(templates: List):
+    for index, template in enumerate(templates):
+        # print(template)
+        template_name = template["name"]
+        id = template["id"]
+        rep_count = 5
+        item = EditableTemplateListItem(index, template_name, id, rep_count)
+        template_levels_list.addMasteryItem(item)
+    
+def load_template_list(templates, note_type_item: NoteTypeItem):
+    
+    template_levels_list.clear()
+    
+    # print(type(note_type_item))
+    # print(note_type_item)
+    # print(f"IS IN MASTERYDATA: {masteryDatahandler.is_note_type_in_mastery(note_type_item.note_type_id)}")
+    
+    if masteryDatahandler.is_note_type_in_mastery(note_type_item.note_type_id):
+        load_templates_from_Json(templates, note_type_item)
+        
+    else:
+        load_templates_with_defaults(templates)
+
+
+def refreash_template_tag_with_prefix(note_type_item: NoteTypeItem):
+    tag_prefix = tag_prefix_edit.text()
+    
+    if masteryDatahandler.is_note_type_in_mastery(note_type_item.note_type_id):
+        max_tag_level = len(masteryDatahandler.get_all_rep_count_tags(note_type_item.note_type_id)) - 1
+    else:
+        max_tag_level = "XXX"
+    tag_prefix_with_level.setText(f"{tag_prefix}{max_tag_level}")
+
+
+def load_template_tag_prefix(note_type_item: NoteTypeItem):
+    # Load in tag_prefix
+    if masteryDatahandler.is_note_type_in_mastery(note_type_item.note_type_id):
+        tag_prefix = masteryDatahandler.get_tag_prefix(note_type_item.note_type_id)
+        tag_prefix_edit.setText(tag_prefix)
+
+def load_template_tag_with_prefix(note_type_item: NoteTypeItem):
+    # Load in last rep_count_tag
+    if masteryDatahandler.is_note_type_in_mastery(note_type_item.note_type_id):
+        max_tag_level = len(masteryDatahandler.get_all_rep_count_tags(note_type_item.note_type_id)) - 1
+        tag_prefix = masteryDatahandler.get_tag_prefix(note_type_item.note_type_id)
+        
+    else:
+        tag_prefix = tag_prefix_edit.text()
+        max_tag_level = "XXX"
+        
+    tag_prefix_with_level.setText(f"{tag_prefix}{max_tag_level}")
+    print(f"NOTEFOUND: {masteryDatahandler.is_note_type_in_mastery(note_type_item.note_type_id)} TAG: {max_tag_level}")
+
+    
+    
+def load_all_template_tag_info(note_type_item: NoteTypeItem):
+    load_template_tag_prefix(note_type_item)
+    load_template_tag_with_prefix(note_type_item)
+        
+
+def update_win_info_from_combobox(row: int):
+    note_type_item = get_note_type_info(row)
+    
+    # print(f"get_note_type_info -> {item}")
+    
+    if note_type_item is not None:
+        templates = get_note_type_templates(note_type_item)
+        # print(f"get_note_type_templates-> {templates}")
+        # print(f"note_type_item2 -> {row}")
+        load_template_list(templates, note_type_item)
+        load_all_template_tag_info(note_type_item)
+        
+        
+        
+
+def save_window_info_to_json():
+    itemWidgets = get_templates_with_level_info()
+    
+    selectedNoteTypeItem = get_selected_note_type_from_drop_down()
+    # print(f"\nBEFORE CLEAN {masteryDatahandler.data}\n")
+    masteryDatahandler.clear_previous_template_data(selectedNoteTypeItem.note_type_id)
+    
+    # print(f"\nBEFORE SAVE {masteryDatahandler.data}\n")
+    for index, itemWidget in enumerate(itemWidgets):
+        template_name = get_template_name(itemWidget)
+        rep_count = get_template_reps(itemWidget)
+        
+        # print(f"\t{template_name} | reps:{rep_count}")
+        
+        masteryDatahandler.add_template_level_manual_level_count(selectedNoteTypeItem, template_name, rep_count)
+        
+        masteryDatahandler.save_json()
+        
+    save_prefix_and_rep_count_tags(selectedNoteTypeItem)
+    
+    
+def save_prefix_and_rep_count_tags(selectedNoteTypeItem: NoteTypeItem):
+    note_type_id = selectedNoteTypeItem.note_type_id
+    
+    tag_prefix = tag_prefix_edit.text()
+    rep_count_tags = masteryDatahandler.create_rep_count_tags(note_type_id, tag_prefix)
+    
+    masteryDatahandler.set_tag_prefix(note_type_id, tag_prefix)
+    masteryDatahandler.set_rep_count_tags(note_type_id, rep_count_tags)
+    
+    refreash_template_tag_with_prefix(selectedNoteTypeItem)
+    
+    masteryDatahandler.save_json()
+        
+    
+        
+    # print(f"\nAFTER {masteryDatahandler.data}\n")
+    
+
+
+
+

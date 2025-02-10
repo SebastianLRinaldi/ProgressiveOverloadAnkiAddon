@@ -1,0 +1,35 @@
+{
+  "decks": 
+    {
+      "111111": 
+        {
+          "deck_id": 111111,
+          "deck_name": "my_progression_deck"
+        }
+    },
+  "note_types": 
+    {
+      "1717578821380": 
+        {
+          "note_id": 222222,
+          "note_name": "progression_note",
+          "tag_creation_settings": 
+            {
+              "tag_prefix": "level_",
+              "start_rep": 0,
+              "mastery_rep": 10,
+              "rep_count_tags":[]
+            },
+          "templates": 
+            {
+              "progression_template_1": 
+                {
+                  "template_name": "progression_template_1",
+                  "template_reps": 11,
+                  "min_level": 0,
+                  "max_level": 10
+                }
+            }
+        }
+    }
+}
