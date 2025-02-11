@@ -76,12 +76,13 @@ class TreeViewWidget(QTreeView, IsolatedWidget):
     
     focused_in = pyqtSignal()  # Custom signal
     focused_out = pyqtSignal()
-    beforePopup = pyqtSignal()  
+    beforePopup = pyqtSignal()
     
     
     def __init__(self, widgetRow=-1, widgetCol=-1, widgetRowSpan=-1, widgetColSpan=-1, *args, **kwargs):
         IsolatedWidget.__init__(self, widgetRow, widgetCol, widgetRowSpan, widgetColSpan, *args, **kwargs)
         QTreeView.__init__(self, *args, **kwargs)
+        # self.model = QStandardItemModel()
         # self.setHeaderHidden(True)
     
     def focusInEvent(self, event):
@@ -91,6 +92,7 @@ class TreeViewWidget(QTreeView, IsolatedWidget):
     def focusOutEvent(self, event):
         # print("ComboBox lost focus")
         self.focused_out.emit()
+        
         
     # def showPopup(self):
     #     """Emit a signal before showing the dropdown."""
