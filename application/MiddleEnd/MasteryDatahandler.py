@@ -26,130 +26,29 @@ class MasteryDataHandler:
         with open(self.json_path, 'w', encoding='utf-8') as f:
             json.dump(self.data, f, indent=4)
 
-    # def save_json(self, json_path: Union[str, Path]) -> None:
-    #     """Save JSON data to file."""
-    #     with open(json_path, 'w', encoding='utf-8') as f:
-    #         json.dump(self.data, f, indent=4)
-            
-            
-
-    # def add_deck(self, deck_id: str, deck_name: str) -> bool:
-    #     """Add a new deck to the configuration."""
-    #     if 'decks' not in self.data:
-    #         self.data['decks'] = []
-        
-    #     # Check if deck already exists
-    #     if any(deck.get('id') == deck_id for deck in self.data['decks']):
-    #         return False
-        
-    #     self.data['decks'].append({
-    #         'id': deck_id,
-    #         'deck_name': deck_name,
-    #         'notes': [],
-    #         'templates': []
-    #     })
-    #     self.save()
-    #     return True
-
-    # def update_deck(self, deck_id: str, **kwargs) -> bool:
-    #     """Update an existing deck."""
-    #     for deck in self.data.get('decks', []):
-    #         if deck.get('id') == deck_id:
-    #             deck.update(kwargs)
-    #             self.save()
-    #             return True
-    #     return False
-
-    # def add_note_to_deck(self, deck_id: str, note_id: str, note_name: str, 
-    #                     tag_creation_settings: Dict[str, Any]) -> bool:
-    #     """Add a note to a specific deck."""
-    #     for deck in self.data.get('decks', []):
-    #         if deck.get('id') == deck_id:
-    #             if any(note.get('id') == note_id for note in deck['notes']):
-    #                 return False
-                
-    #             deck['notes'].append({
-    #                 'id': note_id,
-    #                 'note_name': note_name,
-    #                 'tag_creation_settings': tag_creation_settings
-    #             })
-    #             self.save()
-    #             return True
-    #     return False
-
-    # def update_note(self, deck_id: str, note_id: str, **kwargs) -> bool:
-    #     """Update an existing note."""
-    #     for deck in self.data.get('decks', []):
-    #         if deck.get('id') == deck_id:
-    #             for note in deck.get('notes', []):
-    #                 if note.get('id') == note_id:
-    #                     note.update(kwargs)
-    #                     self.save()
-    #                     return True
-    #     return False
-
-    # def add_template_to_deck(self, deck_id: str, template_id: str, 
-    #                     template_name: str, min_level: int, max_level: int) -> bool:
-    #     """Add a template to a specific deck."""
-    #     for deck in self.data.get('decks', []):
-    #         if deck.get('id') == deck_id:
-    #             if any(template.get('id') == template_id for template in deck['templates']):
-    #                 return False
-                
-    #             deck['templates'].append({
-    #                 'id': template_id,
-    #                 'template_name': template_name,
-    #                 'min_level': min_level,
-    #                 'max_level': max_level
-    #             })
-    #             self.save()
-    #             return True
-    #     return False
-
-    # def update_template(self, deck_id: str, template_id: str, **kwargs) -> bool:
-    #     """Update an existing template."""
-    #     for deck in self.data.get('decks', []):
-    #         if deck.get('id') == deck_id:
-    #             for template in deck.get('templates', []):
-    #                 if template.get('id') == template_id:
-    #                     template.update(kwargs)
-    #                     self.save()
-    #                     return True
-    #     return False
     
-    # def get_deck(self, identifier=None, deck_name=None) -> Dict[str, Any]:
-    #     """
-    #     Retrieve a deck by either ID or name.
-        
-    #     Args:
-    #         identifier (str): Deck ID to search for
-    #         deck_name (str): Deck name to search for
-            
-    #     Returns:
-    #         Dict[str, Any]: The deck dictionary if found, otherwise None
-            
-    #     Raises:
-    #         ValueError: If neither identifier nor deck_name is provided
-    #     """
-    #     if not identifier and not deck_name:
-    #         raise ValueError("Must provide either identifier or deck_name")
-        
-    #     if 'decks' not in self.data:
-    #         return None
-        
-    #     # Search by ID
-    #     if identifier:
-    #         for deck in self.data['decks']:
-    #             if deck.get('id') == identifier:
-    #                 return deck
-        
-    #     # Search by name
-    #     if deck_name:
-    #         for deck in self.data['decks']:
-    #             if deck.get('deck_name') == deck_name:
-    #                 return deck
-        
-    #     return None
+    ####################################
+    # Deck Checkers
+    ####################################
+    def is_deck_in_mastery(self, deck_id: str) -> bool:
+        return str(deck_id) in self.data.get("decks", {})
+    
+    ####################################
+    # Deck Getters
+    ####################################
+    def get_deck(self, deck_id: str) -> Dict[str, Any]:
+        try:
+            result = self.data["decks"][str(deck_id)]
+        except Exception as e:
+            result = None
+        return result
+    
+
+    ####################################
+    # Deck Setters
+    ####################################
+    def set_deck(self, deck_id: str, deck_info: Dict[str, Any]) -> None:
+        self.data["decks"][deck_id] = deck_info
     
     
     ####################################
@@ -296,20 +195,10 @@ class MasteryDataHandler:
     def set_note_type_template_max_level(self, note_type_id: str, template_name, max_level: int) -> None:
         self.get_a_note_type_template(note_type_id, template_name)["max_level"] = max_level
     
-    
     def clear_previous_template_data(self, note_type_id: str):
         if self.is_note_type_in_mastery(note_type_id):
             self.data["note_types"][note_type_id]["templates"] = {}
     
-    
-    
-        
-        
-        
-        
-        
-        
-        
     def get_last_template_stored(self, note_type_id: str):
         # print(self.data)
         
@@ -385,101 +274,3 @@ class MasteryDataHandler:
                         }
                     }
                 }
-        # print(f"Update MASTERY: {note_type_id} | {template_name_to_update}")
-            
-            
-            
-            
-            
-            # Add the new level with start and end based on card_type_total_rep_count and tag level config
-            # start = self.data["note_types"][note_type_id]["tag_creation"]["start_rep"]
-            # end = start + card_type_total_rep_count - 1 
-            
-            # self.data["note_types"][note_type_id]["templates"][template_name_to_update] = {
-            #     "start": start,
-            #     "end": end  
-            # }
-    
-    """
-    v1
-    """
-    
-    # def get_last_template_stored(self):
-    #     templates = self.data["note_types"][note_type_id]["templates"]
-    #     if len(templates.keys()) != 0 :
-    #         last_template_name = next(reversed(templates.keys()))
-    #     else:
-    #         last_template_name = None
-    #     return last_template_name
-        
-
-            
-    # def add_template_level_manual_level_count(self, level_name, manual_card_type_level_count):
-    #     """Add a new template level with calculated end"""
-    #     template_name = self.get_last_template_stored()
-    #     card_type_level_count = manual_card_type_level_count
-        
-        
-    #     if template_name is not None:
-    #         # start = self.data["note_types"][note_type_id]["templates"][template_name]["start"]
-    #         prev_template_end = self.data["note_types"][note_type_id]["templates"][template_name]["end"]
-    #         start = prev_template_end + 1
-    #         end = prev_template_end + card_type_level_count
-            
-    #         self.data["note_types"][note_type_id]["templates"][level_name] = {
-    #             "start": start,
-    #             "end": end
-    #         }
-            
-    #     else:
-    #         # Add the new level with start and end based on card_type_level_count and tag level config
-            
-    #         start = self.data["note_types"][note_type_id]["tag_creation"]["start"]
-    #         end = start + card_type_level_count - 1 
-            
-    #         self.data["note_types"][note_type_id]["templates"][level_name] = {
-    #             "start": start,
-    #             "end": end  
-    #         }
-            
-    """
-    v0
-    
-    """
-    # def get_last_template_stored(self):
-    #     template_levels = self.data["Note_type_name"]["template_levels"]
-    #     if len(template_levels.keys()) != 0 :
-    #         last_template_name = next(reversed(template_levels.keys()))
-    #     else:
-    #         last_template_name = None
-    #     return last_template_name
-        
-
-            
-    # def add_template_level_manual_level_count(self, level_name, manual_card_type_level_count):
-    #     """Add a new template level with calculated end"""
-    #     template_name = self.get_last_template_stored()
-    #     card_type_level_count = manual_card_type_level_count
-        
-        
-    #     if template_name is not None:
-    #         # start = self.data["Note_type_name"]["template_levels"][template_name]["start"]
-    #         prev_template_end = self.data["Note_type_name"]["template_levels"][template_name]["end"]
-    #         start = prev_template_end + 1
-    #         end = prev_template_end + card_type_level_count
-            
-    #         self.data["Note_type_name"]["template_levels"][level_name] = {
-    #             "start": start,
-    #             "end": end
-    #         }
-            
-    #     else:
-    #         # Add the new level with start and end based on card_type_level_count and tag level config
-            
-    #         start = self.data["Note_type_name"]["tag_creation"]["start"]
-    #         end = start + card_type_level_count - 1 
-            
-    #         self.data["Note_type_name"]["template_levels"][level_name] = {
-    #             "start": start,
-    #             "end": end  
-    #         }

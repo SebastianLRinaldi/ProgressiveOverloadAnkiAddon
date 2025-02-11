@@ -4,12 +4,13 @@ from application.FrontEnd.D_WindowFolder.WindowInitializations.windowInitializat
 from application.MiddleEnd.integreation.UpdateViewerFunctions import preview_cards_with_template
 from application.MiddleEnd.integreation.UserTemplateInfoFunctions import *
 from application.MiddleEnd.integreation.UpdateWindowFromAnkiFunctions import refreash_template_tag_with_prefix, get_selected_note_type_from_drop_down 
-
+from application.MiddleEnd.integreation.UpdateDeckWindowFromAnkiFunctions import populate_tree, update_status, toggle_connection
 
 # save_note_type_mastery_button.clicked.connect(lambda: label.setText("Hello"))
 
-
-
+available_decks_tree.focused_in.connect(populate_tree)
+# available_decks_tree.itemSelectionChanged.connect(update_status)
+toggle_deck_connection.clicked.connect(toggle_connection)
 
 # note_type_drop_down.focused_in.connect(add_note_types_to_comboBox)
 # note_type_drop_down.focused_out.connect(add_note_types_to_comboBox)

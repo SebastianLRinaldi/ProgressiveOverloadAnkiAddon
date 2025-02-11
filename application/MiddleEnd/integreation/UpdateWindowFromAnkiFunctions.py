@@ -19,7 +19,9 @@ from anki import hooks
 
 
 
-
+#####################################
+# Get Info from Anki
+#####################################
 
 def add_note_types_to_comboBox():
     note_type_drop_down.clear()
@@ -30,28 +32,7 @@ def add_note_types_to_comboBox():
         # note_type_drop_down.addItem(f"{note_type.name}, {note_type.id}")
         note_type_drop_down.addItem(note_type.name, NoteTypeItem(note_type.name, note_type.id))
         
-    # print("UPDATED COMBOX")
 
-
-        
-        
-masteryDatahandler = MasteryDataHandler("C:\\Users\\epics\\AppData\\Roaming\\Anki2\\addons21\\myAddOn\\user_files\\masteryData.json")
-
-
-def get_selected_note_type_from_drop_down() -> NoteTypeItem:
-    return note_type_drop_down.currentData()
-
-
-def get_note_type_info(row:int) -> NoteTypeItem:
-    # Handle both highlighted and activated signals
-    # print(f"row: {row}")
-    if row is None:
-        # Activated signal was triggered
-        result = get_selected_note_type_from_drop_down()
-    else:
-        # Highlighted signal was triggered
-        result = note_type_drop_down.itemData(row)
-    return  result
 
 def get_note_type_templates(note_type_item: NoteTypeItem):
         # print(f"Loading data for: {note_type_item.note_type_name} (ID: {note_type_item.note_type_id})")
@@ -61,11 +42,19 @@ def get_note_type_templates(note_type_item: NoteTypeItem):
         templates = mw.col.models.get(note_type_item.note_type_id)["tmpls"]
         return templates
 
+def get_decks_from_anki():
+    return mw.col.decks.deck_tree() 
+    # return mw.col.decks.all_names_and_ids()
+    # return mw.col.decks.all()
 
-# def get_mastery_data(note_type_item: NoteTypeItem):
-#     print(masteryDatahandler.get_note_type_mastery(note_type_item.note_type_id))
-#     print(masteryDatahandler.data)
 
+
+
+#####################################
+# Get Info from MasteryData
+#####################################
+
+masteryDatahandler = MasteryDataHandler("C:\\Users\\epics\\AppData\\Roaming\\Anki2\\addons21\\ProgressiveOverloadAnkiAddon\\user_files\\masteryData.json")
 
 
 def load_templates_from_Json(templates: List, note_type_item: NoteTypeItem):
@@ -151,6 +140,24 @@ def load_all_template_tag_info(note_type_item: NoteTypeItem):
     load_template_tag_prefix(note_type_item)
     load_template_tag_with_prefix(note_type_item)
         
+
+
+
+def get_selected_note_type_from_drop_down() -> NoteTypeItem:
+    return note_type_drop_down.currentData()
+
+
+def get_note_type_info(row:int) -> NoteTypeItem:
+    # Handle both highlighted and activated signals
+    # print(f"row: {row}")
+    if row is None:
+        # Activated signal was triggered
+        result = get_selected_note_type_from_drop_down()
+    else:
+        # Highlighted signal was triggered
+        result = note_type_drop_down.itemData(row)
+    return  result
+
 
 def update_win_info_from_combobox(row: int):
     note_type_item = get_note_type_info(row)

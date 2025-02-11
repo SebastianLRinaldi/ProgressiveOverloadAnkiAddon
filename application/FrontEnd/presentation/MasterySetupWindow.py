@@ -25,9 +25,20 @@ def MasterySetupWindow():
                 
                 middleSplit.add_widgets_to_spliter(
                     
+                    # See if spliter or tabs look cleaner 
+                    deck_setup.add_widgets_to_group(
+                        available_decks_tree,
+                        deck_status,
+                        toggle_deck_connection,
+                    ),
+                    
+                    
                     note_tag_setup.add_widgets_to_group(
                         note_type_drop_down,
                         template_levels_list,
+                        tag_prefix_edit,
+                        tag_prefix_with_level,
+                        save_note_type_mastery_button
                     ),
                     
 
@@ -35,11 +46,11 @@ def MasterySetupWindow():
                     # Along with the max and min prefix_level at the bottom
                     
                     
-                    template_level_setup.add_widgets_to_group(
-                        tag_prefix_edit,
-                        tag_prefix_with_level,
-                        save_note_type_mastery_button
-                    ),
+                    # template_level_setup.add_widgets_to_group(
+                    #     tag_prefix_edit,
+                    #     tag_prefix_with_level,
+                    #     save_note_type_mastery_button
+                    # ),
                 )
             )
         

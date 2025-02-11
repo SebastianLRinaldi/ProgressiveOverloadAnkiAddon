@@ -70,6 +70,32 @@ class ComboBox(QComboBox, IsolatedWidget):
         self.beforePopup.emit()  # Emit the custom signal
         super().showPopup()  # Open the dropdown normally
         
+        
+    
+class TreeViewWidget(QTreeView, IsolatedWidget):
+    
+    focused_in = pyqtSignal()  # Custom signal
+    focused_out = pyqtSignal()
+    beforePopup = pyqtSignal()  
+    
+    
+    def __init__(self, widgetRow=-1, widgetCol=-1, widgetRowSpan=-1, widgetColSpan=-1, *args, **kwargs):
+        IsolatedWidget.__init__(self, widgetRow, widgetCol, widgetRowSpan, widgetColSpan, *args, **kwargs)
+        QTreeView.__init__(self, *args, **kwargs)
+        # self.setHeaderHidden(True)
+    
+    def focusInEvent(self, event):
+        # print("ComboBox gained focus")
+        self.focused_in.emit()
+        
+    def focusOutEvent(self, event):
+        # print("ComboBox lost focus")
+        self.focused_out.emit()
+        
+    # def showPopup(self):
+    #     """Emit a signal before showing the dropdown."""
+    #     self.beforePopup.emit()  # Emit the custom signal
+    #     super().showPopup()  # Open the dropdown normally
 
 
 class CheckBox(QCheckBox, IsolatedWidget):
@@ -371,16 +397,6 @@ class CalendarWidget(QCalendarWidget, IsolatedWidget):
 #             for col, item in enumerate(row_data):
 #                 self.setItem(row, col, QTableWidgetItem(str(item)))
 
-
-# class TreeWidget(QTreeWidget, IsolatedWidget):
-#     def __init__(self, widgetRow=-1, widgetCol=-1, widgetRowSpan=-1, widgetColSpan=-1, *args, **kwargs):
-#         IsolatedWidget.__init__(self, widgetRow, widgetCol, widgetRowSpan, widgetColSpan, *args, **kwargs)
-#         QTreeWidget.__init__(self, *args, **kwargs)
-
-#     def update_tree(self, items):
-#         self.clear()
-#         for item in items:
-#             self.addTopLevelItem(QTreeWidgetItem([item]))
 
 
 # class GroupBox(QGroupBox, IsolatedWidget):

@@ -2,6 +2,9 @@ from application.FrontEnd.C_Grouper.WidgetGroupConfigureations.WidgetGroupConfig
 
 note_tag_setup = WidgetGroup(title="note_tag_setup")
 template_level_setup = WidgetGroup(title="template_level_setup")
+deck_setup = WidgetGroup(title="deck_setup")
+
+
 
 card_view_area = WidgetGroup(title="card_view_area")
 card_nav_area = WidgetGroup(title="card_nav_area")
