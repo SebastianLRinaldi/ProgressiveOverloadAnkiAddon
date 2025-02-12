@@ -73,21 +73,15 @@ from aqt.utils import showInfo, showInfo, qconnect
 from anki.hooks import addHook
 from anki import hooks
 
-
-# Define your custom stages
 from enum import Enum
-
 
 sys.path.append(os.path.dirname(__file__))
 
 from application.MiddleEnd.integreation.UpdateWindowFromAnkiFunctions import *
 
-# class MasteryLevel(Enum):
-#     LEVEL_0 = "level_0"
-#     LEVEL_1 = "level_1"
-#     LEVEL_2 = "level_2"
-#     LEVEL_3 = "level_3"
-    
+
+
+
 class MasteryUpdate(Enum):
     DECREASE = -1
     STAY = 0
@@ -99,22 +93,6 @@ class AnkiButton(Enum):
     HARD = 2
     GOOD = 3
     EASY = 4
-    
-# Create a set of enum values for fast lookup
-# LEVELS = list(MasteryLevel)
-
-
-
-# Specify the target deck name
-TARGET_DECK_NAME = 'Progressive test decl'  # Replace with your deck's name
-
-
-
-
-
-
-
-
 
 
 class mastery_card_grader:
@@ -122,13 +100,9 @@ class mastery_card_grader:
         self.target_deck = None
         self.set_target_deck_from_config()
         
-        self.MasteryDataLevels = None #["Level_0", "level_1", "level_2", "level_3"]
+        #["Level_0", "level_1", "level_2", "level_3"]
+        self.MasteryDataLevels = None 
         
-        # The function called here would do this...
-        # Check if Deck assigned has mastery note types 
-        #   if it does then load grader with saved json files
-        #   if its doesn't then continue
-        #gui_hooks.reviewer_did_init() # get the decks note types and mastery levels
         
     def set_mastery_data_levels(self, note_type_id_from_anki: int):
         self.MasteryDataLevels = masteryDatahandler.get_all_rep_count_tags(str(note_type_id_from_anki))
@@ -558,54 +532,20 @@ def deck_check_then_call(call_back, *args, **kwargs):
     else:
         print("Condition not met. Callback not executed.")
         
-# gui_hooks.reviewer_did_answer_card.append(deck_check_then_call)
-# gui_hooks.add_cards_did_add_note.append(deck_check_then_call)
 
-
+# Update the cards Mastery tag apon anwsering again -1 or good +1
+# gui_hooks.reviewer_did_init()
 gui_hooks.reviewer_did_answer_card.append(
     lambda *args, **kwargs: deck_check_then_call(mastery_card_addon.on_card_grade, *args, **kwargs)
 )
 
+# Adding a new note will set first level tag and first card type "Unlocked", other card types with be suspended "Locked"
 gui_hooks.add_cards_did_add_note.append(
     lambda *args, **kwargs: deck_check_then_call(mastery_card_addon.set_up_mastery_of_note, *args, **kwargs)
     )
 
-
-# gui_hooks.reviewer_did_answer_card.append(deck_check_then_call(mastery_card_addon.on_card_grade))
-# gui_hooks.add_cards_did_add_note.append(deck_check_then_call(mastery_card_addon.set_up_mastery_of_note))
-
-
-# # Update the cards Mastery tag apon anwsering again -1 or good +1
-# # Reviewer._answerCard = wrap(Reviewer._answerCard, mastery_card_addon.on_card_grade, 'before')
-# gui_hooks.reviewer_did_answer_card.append(mastery_card_addon.on_card_grade)
-
-# # Adding a new note will set first level tag and first card type "Unlocked", other card types with be suspended "Locked"
-# gui_hooks.add_cards_did_add_note.append(mastery_card_addon.set_up_mastery_of_note)
-
 # # Allows for updating configs while app is running
 # mw.addonManager.setConfigUpdatedAction(__name__, mastery_card_addon.on_config_change)
-
-
-
-
-
-# hooks.schema_will_change.append(lambda: print("SCHEMA CHANGED"))
-# hooks.note_type_added.append(lambda: print("note_type_added"))
-# hooks.note_will_be_added.append(lambda: print("note_will_be_added"))
-# hooks.notes_will_be_deleted.append(lambda: print("notes_will_be_deleted"))
-
-# # Tool Menu item for addon if needed
-# action = QAction("Show  Deck", mw)
-# action.triggered.connect(mastery_card_addon.show_target_deck)
-# mw.form.menuTools.addAction(action)
-
-
-
-
-
-
-
-        
 
 
 from application.FrontEnd.presentation.MasterySetupWindow import MasterySetupWindow

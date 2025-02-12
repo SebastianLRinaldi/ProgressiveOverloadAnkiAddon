@@ -25,13 +25,13 @@ class MasterSpliterGroup(QSplitter):
         
         
         # Style the handles
-        self.setStyleSheet("""
-            QSplitter::handle::Vertical {
-                background-color: #2196F3;  /* Blue handle */
-                width: 5px;
-                margin: 2px;
-            }
-        """)
+        # self.setStyleSheet("""
+        #     QSplitter::handle::Vertical {
+        #         background-color: #2196F3;  /* Blue handle */
+        #         width: 5px;
+        #         margin: 2px;
+        #     }
+        # """)
         
             
     def add_widgets_to_spliter(self, *widgets):

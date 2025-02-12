@@ -1,6 +1,6 @@
-from application.MiddleEnd.MasteryDatahandler import MasteryDataHandler
-from application.FrontEnd.B_WidgetsFolder.WidgetInitializations.WidgetInitialization import *
-from application.MiddleEnd.integreation.MasterTypes import *
+# from application.MiddleEnd.MasteryDatahandler import MasteryDataHandler
+# from application.FrontEnd.B_WidgetsFolder.WidgetInitializations.WidgetInitialization import *
+# from application.MiddleEnd.integreation.MasterTypes import *
 from application.MiddleEnd.integreation.UserTemplateInfoFunctions import *
 
 import aqt
@@ -53,8 +53,8 @@ def get_decks_from_anki():
 #####################################
 # Get Info from MasteryData
 #####################################
-
-masteryDatahandler = MasteryDataHandler("C:\\Users\\epics\\AppData\\Roaming\\Anki2\\addons21\\ProgressiveOverloadAnkiAddon\\user_files\\masteryData.json")
+# "C:\\Users\\epics\\AppData\\Roaming\\Anki2\\addons21\\ProgressiveOverloadAnkiAddon\\user_files\\masteryData_test.json"
+masteryDatahandler = MasteryDataHandler("C:\\Users\\epics\\AppData\\Roaming\\Anki2\\addons21\\ProgressiveOverloadAnkiAddon\\user_files\\masteryDataWorking.json")
 
 
 def load_templates_from_Json(templates: List, note_type_item: NoteTypeItem):
