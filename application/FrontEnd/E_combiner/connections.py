@@ -8,9 +8,9 @@ from application.MiddleEnd.integreation.UpdateDeckWindowFromAnkiFunctions import
 
 # save_note_type_mastery_button.clicked.connect(lambda: label.setText("Hello"))
 
-available_decks_tree.focused_in.connect(populate_tree)
+# available_decks_tree.focused_in.connect(populate_tree)
 # available_decks_tree.selectionChanged.connect(update_status)
-
+available_decks_tree.beforeShow.connect(populate_tree)
 available_decks_tree.clicked.connect(update_status)
 toggle_deck_connection.clicked.connect(toggle_connection)
 

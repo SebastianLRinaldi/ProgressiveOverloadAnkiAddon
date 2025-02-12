@@ -76,7 +76,7 @@ class TreeViewWidget(QTreeView, IsolatedWidget):
     
     focused_in = pyqtSignal()  # Custom signal
     focused_out = pyqtSignal()
-    beforePopup = pyqtSignal()
+    beforeShow = pyqtSignal()
     
     
     def __init__(self, widgetRow=-1, widgetCol=-1, widgetRowSpan=-1, widgetColSpan=-1, *args, **kwargs):
@@ -94,10 +94,10 @@ class TreeViewWidget(QTreeView, IsolatedWidget):
         self.focused_out.emit()
         
         
-    # def showPopup(self):
-    #     """Emit a signal before showing the dropdown."""
-    #     self.beforePopup.emit()  # Emit the custom signal
-    #     super().showPopup()  # Open the dropdown normally
+    def showEvent(self, event):
+        """Emit a signal before showing the dropdown."""
+        self.beforeShow.emit()  # Emit the custom signal
+        # super().showEvent()  # Open the dropdown normally
 
 
 class CheckBox(QCheckBox, IsolatedWidget):

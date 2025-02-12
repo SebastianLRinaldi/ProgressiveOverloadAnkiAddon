@@ -45,7 +45,7 @@ def build_tree_model(deck_node:DeckTreeNode, parent_item: QStandardItem):
     item = QStandardItem(deck_node.name)
     item.setData(deck_node.deck_id, DeckData.ID.value)
     item.setData(False, DeckData.IN_MASTERYDATA.value)
-    item.setData(QBrush(Qt.GlobalColor.blue), Qt.ItemDataRole.ForegroundRole)
+    # item.setData(QBrush(Qt.GlobalColor.blue), Qt.ItemDataRole.ForegroundRole)
     
     parent_item.appendRow(item)
     
@@ -63,27 +63,44 @@ def get_tree_model(root_deck):
 def populate_tree():
     # print(get_decks_from_anki())
     root_deck = get_decks_from_anki()
-    available_decks_tree.setHeaderHidden(True)
+    # available_decks_tree.setHeaderHidden(True)
     available_decks_tree.setModel(get_tree_model(root_deck))
-    available_decks_tree.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-    # available_decks_tree.expandAll()
+    # available_decks_tree.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+    available_decks_tree.expandAll()
     
     
 def update_status(item: QModelIndex):
     print(f"CLICKED: TYPE{type(item)}- {item.data(DeckData.ID.value)}")
+    print(f"COLOR{item.data(Qt.ItemDataRole.ForegroundRole)}")
     """ Updates the status label and button based on selection. """
 
-QModelIndex
-def toggle_connection():
+def toggle_connection(n):
     """ Toggles connection state of selected deck and updates UI. """
 
-    """Change the item's color when clicked"""
     index = available_decks_tree.currentIndex()
-    item = available_decks_tree.model().itemFromIndex(index)
+    model = available_decks_tree.model()
+    if isinstance(model, QStandardItemModel):
+        item = model.itemFromIndex(index)
+        if item:
+            
+            # Set foreground using QBrush
+            # brush = QBrush(QColor("red"))
+            item.setForeground(QColor("green"))
+            # item.setData(brush, Qt.ItemDataRole.ForegroundRole)
+
+            # model.dataChanged.emit(index, index, [Qt.ItemDataRole.ForegroundRole])  # Force refresh
+    else:
+        print("Not a QStandardItemModel")
+        
     
 
-    print(f"Selected: {item.text()} | TYPE{type(item)}- {item.data(Qt.ItemDataRole.UserRole)}")
-    item.setData(QBrush(Qt.GlobalColor.red), Qt.ItemDataRole.ForegroundRole)
+    # available_decks_tree.dataChanged.emit(index, index)
+    
+    # item = available_decks_tree.itemFromIndex(index)
+    
+    
+    # item.setBackground(QColor("lightblue"))
+
         # available_decks_tree.
         
         # if item.data(Qt.ItemDataRole.UserRole + 1):

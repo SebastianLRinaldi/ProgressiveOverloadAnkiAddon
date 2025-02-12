@@ -13,7 +13,6 @@ toggle_deck_connection = Button(text="Connect/Disconnect")
 
 
 
-
 ##########################
 note_type_drop_down = ComboBox(widgetRow=0, widgetCol=0, widgetRowSpan=1, widgetColSpan=2)
 template_levels_list = ListWidget()
