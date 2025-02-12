@@ -40,6 +40,11 @@ Got all the backend features working for the window and am just about to work on
 deck checking in a super clean way now work pretty well I would say
 
 ONLY small bug is that if a deck slips past then self.MasteryData is None and that causes errors
+Another small thing is I can't unassign note types from mastery which would be nice for debugging and
+    cleaning the MasteryData
+
+Also would be nice to have some hooks connected to remove deck from mastery and remove notetype from mastery
+    if the User deletes them within anki
 """
 # C:\Users\epics\AppData\Local\Programs\Anki\anki-console.bat
 
