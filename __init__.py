@@ -45,6 +45,12 @@ Another small thing is I can't unassign note types from mastery which would be n
 
 Also would be nice to have some hooks connected to remove deck from mastery and remove notetype from mastery
     if the User deletes them within anki
+    
+Need to also add in feature or button or attach it to the save button
+if you ahve MasteryLevels already and cards and you add/subtract tempaltes or reps it will automaticall resuspend/unsuspend all teh cards 
+    that are attached to the note type in your deck
+    - Will also need to do this for a premade deck atatch tags 
+    - For the future be able to set tags on premade decks and kinda filter or make your own filter for what cards get what "starting" tag
 """
 # C:\Users\epics\AppData\Local\Programs\Anki\anki-console.bat
 
