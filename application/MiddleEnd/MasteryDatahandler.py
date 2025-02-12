@@ -47,8 +47,11 @@ class MasteryDataHandler:
     ####################################
     # Deck Setters
     ####################################
-    def set_deck(self, deck_id: str, deck_info: Dict[str, Any]) -> None:
-        self.data["decks"][deck_id] = deck_info
+    def set_deck(self, deck_id: str, deck_name: str) -> None:
+        self.data["decks"][deck_id] = {
+                "deck_id": deck_id,
+                "deck_name": deck_name
+                } 
         
     ####################################
     # Deck Delete

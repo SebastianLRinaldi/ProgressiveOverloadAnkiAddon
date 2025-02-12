@@ -65,9 +65,9 @@ def get_tree_model(root_deck):
 def populate_tree():
     # print(get_decks_from_anki())
     root_deck = get_decks_from_anki()
-    # available_decks_tree.setHeaderHidden(True)
+    available_decks_tree.setHeaderHidden(True)
     available_decks_tree.setModel(get_tree_model(root_deck))
-    # available_decks_tree.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+    available_decks_tree.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
     available_decks_tree.expandAll()
     
     
@@ -84,21 +84,14 @@ def get_current_item() -> QStandardItem:
     return result    
 
 def update_status():
-    
-    # print(f"CLICKED: TYPE{type(item)}- {item.data(DeckData.ID.value)}")
-    # print(f"COLOR{item.data(Qt.ItemDataRole.ForegroundRole)}")
-    """ Updates the status label and button based on selection. """
+    """ Updates the MasteryData, status label, and button based on selection. """
     item = get_current_item()
     
     if item:
         if item.data(DeckData.IN_MASTERYDATA.value) == True:
             deck_name = item.text()
             deck_id = item.data(DeckData.ID.value)
-            deck_info = {
-                "deck_id": deck_id,
-                "deck_name": deck_name
-                } 
-            masteryDatahandler.set_deck(deck_id, deck_info)
+            masteryDatahandler.set_deck(deck_id, deck_name)
             deck_status.setText("Connected To Mastery")
         else:
             deck_id = item.data(DeckData.ID.value)

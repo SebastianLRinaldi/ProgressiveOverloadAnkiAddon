@@ -34,6 +34,12 @@ Got The app working besides some small uder experince things like
 - need to find sutable settings for anki schudel so that 
     newly suspended cards doesn't show up as new card during the review that they got upgraded to
     or make some note about if you want that use these settings vs settings that don't do that
+    
+2/11/25
+Got all the backend features working for the window and am just about to work on deck checking before grading and adding
+deck checking in a super clean way now work pretty well I would say
+
+ONLY small bug is that if a deck slips past then self.MasteryData is None and that causes errors
 """
 # C:\Users\epics\AppData\Local\Programs\Anki\anki-console.bat
 
@@ -528,15 +534,45 @@ mastery_card_addon = mastery_card_grader()
 # mw.form.menuTools.addAction(action3)
 
 
-# Update the cards Mastery tag apon anwsering again -1 or good +1
-# Reviewer._answerCard = wrap(Reviewer._answerCard, mastery_card_addon.on_card_grade, 'before')
-gui_hooks.reviewer_did_answer_card.append(mastery_card_addon.on_card_grade)
 
-# Adding a new note will set first level tag and first card type "Unlocked", other card types with be suspended "Locked"
-gui_hooks.add_cards_did_add_note.append(mastery_card_addon.set_up_mastery_of_note)
+def deck_check_then_call(call_back, *args, **kwargs):
+    # Example condition
+    current_deck_id = mw.col.decks.get_current_id()
+    print(current_deck_id)
+    print(f"DECKIDCURT: {type(current_deck_id)} | {current_deck_id} | InMASTERY: {masteryDatahandler.is_deck_in_mastery(str(current_deck_id))}")
+    
+    if masteryDatahandler.is_deck_in_mastery(str(current_deck_id)):
+    # if some_value:  # Replace `some_value` with your actual condition
+        return call_back(*args, **kwargs)  # Call the callback with optional arguments
+    else:
+        print("Condition not met. Callback not executed.")
+        
+# gui_hooks.reviewer_did_answer_card.append(deck_check_then_call)
+# gui_hooks.add_cards_did_add_note.append(deck_check_then_call)
 
-# Allows for updating configs while app is running
-mw.addonManager.setConfigUpdatedAction(__name__, mastery_card_addon.on_config_change)
+
+gui_hooks.reviewer_did_answer_card.append(
+    lambda *args, **kwargs: deck_check_then_call(mastery_card_addon.on_card_grade, *args, **kwargs)
+)
+
+gui_hooks.add_cards_did_add_note.append(
+    lambda *args, **kwargs: deck_check_then_call(mastery_card_addon.set_up_mastery_of_note, *args, **kwargs)
+    )
+
+
+# gui_hooks.reviewer_did_answer_card.append(deck_check_then_call(mastery_card_addon.on_card_grade))
+# gui_hooks.add_cards_did_add_note.append(deck_check_then_call(mastery_card_addon.set_up_mastery_of_note))
+
+
+# # Update the cards Mastery tag apon anwsering again -1 or good +1
+# # Reviewer._answerCard = wrap(Reviewer._answerCard, mastery_card_addon.on_card_grade, 'before')
+# gui_hooks.reviewer_did_answer_card.append(mastery_card_addon.on_card_grade)
+
+# # Adding a new note will set first level tag and first card type "Unlocked", other card types with be suspended "Locked"
+# gui_hooks.add_cards_did_add_note.append(mastery_card_addon.set_up_mastery_of_note)
+
+# # Allows for updating configs while app is running
+# mw.addonManager.setConfigUpdatedAction(__name__, mastery_card_addon.on_config_change)
 
 
 

@@ -1,6 +1,66 @@
 {
     "decks": {
+        "1739341084737": {
+            "deck_id": "1739341084737",
+            "deck_name": "FULLTEST2"
+        }
     },
     "note_types": {
+        "1739091036500": {
+            "note_type_id": "1739091036500",
+            "note_type_name": "(_A_TEST_NOTE_TYPE",
+            "tag_creation_settings": {
+                "tag_prefix": "REP_",
+                "start_rep": 0,
+                "rep_count_tags": [
+                    "REP_0",
+                    "REP_1",
+                    "REP_2",
+                    "REP_3",
+                    "REP_4",
+                    "REP_5",
+                    "REP_6",
+                    "REP_7",
+                    "REP_8",
+                    "REP_9",
+                    "REP_10",
+                    "REP_11",
+                    "REP_12",
+                    "REP_13",
+                    "REP_14",
+                    "REP_15",
+                    "REP_16",
+                    "REP_17",
+                    "REP_18",
+                    "REP_19"
+                ]
+            },
+            "templates": {
+                "Card 1": {
+                    "template_name": "Card 1",
+                    "template_reps": 5,
+                    "min_level": 0,
+                    "max_level": 4
+                },
+                "Card 2": {
+                    "template_name": "Card 2",
+                    "template_reps": 5,
+                    "min_level": 5,
+                    "max_level": 9
+                },
+                "Card 3": {
+                    "template_name": "Card 3",
+                    "template_reps": 5,
+                    "min_level": 10,
+                    "max_level": 14
+                },
+                "Card 4": {
+                    "template_name": "Card 4",
+                    "template_reps": 5,
+                    "min_level": 15,
+                    "max_level": 19
+                }
+            }
+        }
     }
 }
