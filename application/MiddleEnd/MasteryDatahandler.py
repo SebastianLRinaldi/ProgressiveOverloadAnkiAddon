@@ -49,6 +49,14 @@ class MasteryDataHandler:
     ####################################
     def set_deck(self, deck_id: str, deck_info: Dict[str, Any]) -> None:
         self.data["decks"][deck_id] = deck_info
+        
+    ####################################
+    # Deck Delete
+    ####################################
+    def del_deck(self, deck_id: str) -> None:
+        print(f"ID to Del: {type(deck_id)} | {deck_id} | inMaster: {self.is_deck_in_mastery(deck_id)}")
+        if self.is_deck_in_mastery(deck_id):
+            del self.data["decks"][str(deck_id)]
     
     
     ####################################

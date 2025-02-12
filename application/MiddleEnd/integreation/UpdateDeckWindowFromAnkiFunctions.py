@@ -38,14 +38,16 @@ class StorageMaster():
 storeageMaster = StorageMaster()
 
 
-
 def build_tree_model(deck_node:DeckTreeNode, parent_item: QStandardItem):
     """ Recursively builds the tree model from DeckTreeNode """
     # Would need to check first if the deck is in MasteryData when we do this step
     item = QStandardItem(deck_node.name)
-    item.setData(deck_node.deck_id, DeckData.ID.value)
-    item.setData(False, DeckData.IN_MASTERYDATA.value)
-    # item.setData(QBrush(Qt.GlobalColor.blue), Qt.ItemDataRole.ForegroundRole)
+    item.setData(str(deck_node.deck_id), DeckData.ID.value)
+    if masteryDatahandler.is_deck_in_mastery(str(deck_node.deck_id)):
+        item.setData(True, DeckData.IN_MASTERYDATA.value)
+        item.setForeground(QColor("green"))
+    else:
+        item.setData(False, DeckData.IN_MASTERYDATA.value)
     
     parent_item.appendRow(item)
     
@@ -69,28 +71,56 @@ def populate_tree():
     available_decks_tree.expandAll()
     
     
-def update_status(item: QModelIndex):
-    print(f"CLICKED: TYPE{type(item)}- {item.data(DeckData.ID.value)}")
-    print(f"COLOR{item.data(Qt.ItemDataRole.ForegroundRole)}")
-    """ Updates the status label and button based on selection. """
-
-def toggle_connection(n):
-    """ Toggles connection state of selected deck and updates UI. """
-
+def get_current_item() -> QStandardItem:
+    result = None
+    
     index = available_decks_tree.currentIndex()
     model = available_decks_tree.model()
+    
     if isinstance(model, QStandardItemModel):
         item = model.itemFromIndex(index)
         if item:
-            
-            # Set foreground using QBrush
-            # brush = QBrush(QColor("red"))
-            item.setForeground(QColor("green"))
-            # item.setData(brush, Qt.ItemDataRole.ForegroundRole)
+            result = item
+    return result    
 
-            # model.dataChanged.emit(index, index, [Qt.ItemDataRole.ForegroundRole])  # Force refresh
-    else:
-        print("Not a QStandardItemModel")
+def update_status():
+    
+    # print(f"CLICKED: TYPE{type(item)}- {item.data(DeckData.ID.value)}")
+    # print(f"COLOR{item.data(Qt.ItemDataRole.ForegroundRole)}")
+    """ Updates the status label and button based on selection. """
+    item = get_current_item()
+    
+    if item:
+        if item.data(DeckData.IN_MASTERYDATA.value) == True:
+            deck_name = item.text()
+            deck_id = item.data(DeckData.ID.value)
+            deck_info = {
+                "deck_id": deck_id,
+                "deck_name": deck_name
+                } 
+            masteryDatahandler.set_deck(deck_id, deck_info)
+            deck_status.setText("Connected To Mastery")
+        else:
+            deck_id = item.data(DeckData.ID.value)
+            masteryDatahandler.del_deck(deck_id)
+            deck_status.setText("Disconnected From Mastery")
+            
+        masteryDatahandler.save_json()
+
+def toggle_connection():
+    """ Toggles connection state of selected deck and updates UI. """
+    item = get_current_item()
+    
+    if item:
+        if item.data(DeckData.IN_MASTERYDATA.value) == False:
+            item.setData(True, DeckData.IN_MASTERYDATA.value)
+            item.setForeground(QColor("green"))
+        else:
+            item.setData(False, DeckData.IN_MASTERYDATA.value)
+            item.setForeground(QColor("white"))
+            
+        update_status()
+        
         
     
 
