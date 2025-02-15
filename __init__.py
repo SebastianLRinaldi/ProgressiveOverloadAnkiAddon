@@ -54,7 +54,34 @@ if you ahve MasteryLevels already and cards and you add/subtract tempaltes or re
 """
 # C:\Users\epics\AppData\Local\Programs\Anki\anki-console.bat
 
+"""
+https://stackoverflow.com/questions/42660670/collapse-all-methods-in-visual-studio-code
 
+Ctrl + K + Ctrl + 0: fold all levels (namespace, class, method, and block)
+Ctrl + K + Ctrl + 1: namespace / @Component(For Angular)
+Ctrl + K + Ctrl + 2: class / methods
+Ctrl + K + Ctrl + 3: methods / blocks
+Ctrl + K + Ctrl + 4: blocks / inner blocks
+Ctrl + K + Ctrl + [ or Ctrl + k + ]: current cursor block
+Ctrl + K + Ctrl + j: UnFold
+"""
+
+"""
+Should define what Mastery holds and what anki holds and what is the same thing just different wording
+template
+templates
+
+card_type
+card_types
+
+note_type
+note_types
+
+cards
+notes
+
+all the ids
+"""
 
 from aqt.qt import QAction
 from aqt.operations.collection import CollectionOp
@@ -69,7 +96,7 @@ from aqt import gui_hooks
 import anki.template
 from anki.template import TemplateRenderOutput, TemplateRenderContext
 from anki.hooks import wrap
-from aqt.utils import showInfo, showInfo, qconnect
+from aqt.utils import showInfo, showText, tooltip, qconnect
 from anki.hooks import addHook
 from anki import hooks
 
@@ -79,21 +106,16 @@ sys.path.append(os.path.dirname(__file__))
 
 from application.MiddleEnd.integreation.UpdateWindowFromAnkiFunctions import *
 
-
-
-
 class MasteryUpdate(Enum):
     DECREASE = -1
     STAY = 0
     INCREASE = 1
 
-    
 class AnkiButton(Enum):
     AGAIN = 1
     HARD = 2
     GOOD = 3
     EASY = 4
-
 
 class mastery_card_grader:
     def __init__(self):
@@ -102,15 +124,14 @@ class mastery_card_grader:
         
         #["Level_0", "level_1", "level_2", "level_3"]
         self.MasteryDataLevels = None 
-        
-        
+
     def set_mastery_data_levels(self, note_type_id_from_anki: int):
         self.MasteryDataLevels = masteryDatahandler.get_all_rep_count_tags(str(note_type_id_from_anki))
         print("----------------")
         # print(f"MASTERY FOR: TYPEIN: {type(note_type_id_from_anki)} | TYPEOUTSTR: {str(note_type_id_from_anki)} | INT: {note_type_id_from_anki}")
         print(f"MASTERY LEVELS: {self.MasteryDataLevels}")
         print("----------------")
-    
+
     def get_tag_of_successful_rep_count(self, note:Note) -> str:
         result = None
         for level in self.MasteryDataLevels:
@@ -139,8 +160,6 @@ class mastery_card_grader:
             result = MasteryUpdate.STAY
             
         return result 
-
-
 
     """
     **Assuming that updating the cards mastery happens after the tag is set on grading
@@ -177,11 +196,12 @@ class mastery_card_grader:
             note.add_tag(new_rep_count_tag)
             print(f"Updated mastery level: from [{current_rep_count_tag}] to [{new_rep_count_tag}] |{note.tags}|")
             
-            self.suspend_unsuspend_cards_in_note_based_on_rep_of_note(note, new_rep_count_tag_index)
+            status = self.suspend_unsuspend_cards_in_note_based_on_rep_of_note(note, new_rep_count_tag_index)
+            
+            tooltip(f"Reps adjusted: {current_rep_count_tag} → {new_rep_count_tag} {status}", period=4500)
         else:
-            print("MIN OR MAX level has been reached")
-
-
+            tooltip(f"Level capped/minimum reached | {mastery_adjustment}")
+        
 
     def on_card_grade(self, reviewer:Reviewer=None, card:Card=None, ease_button=None):        
         note = card.note()
@@ -199,16 +219,13 @@ class mastery_card_grader:
             # If no mastery level is found, add the first level (LEVEL_0)
             note.add_tag(self.MasteryDataLevels[0])
             print(f"Added FIRST mastery level: {note.tags}")
+            tooltip(f"No Mastery Tag -> Added: {note.tags}")
+
+        
         
         mw.col.update_note(note)
         # op = mw.col.save()
         # CollectionOp(parent=mw, op=op).run_in_background()
-
-
-
-
-
-
 
     """
     Need to make sure we can set multiple tiers for level seperate from templates/cards in notes
@@ -264,25 +281,9 @@ class mastery_card_grader:
         maxreps =   9  ,   19   ,   29   ,  39
         """
         
+        # status_all = ""
+        status_out = ""
         
-        
-        
-        """
-        Should define what Mastery holds and what anki holds and what is the same thing just different wording
-        template
-        templates
-        
-        card_type
-        card_types
-        
-        note_type
-        note_types
-        
-        cards
-        notes
-        
-        all the ids
-        """
         note_type_id = str(note.note_type()["id"])
         
         for index, template_name in enumerate(template_names):
@@ -293,28 +294,41 @@ class mastery_card_grader:
             
             print(f"MIN: {note_type_template_min_level} <= | new_tag: {new_rep_count_tag_index} | <= MAX: {note_type_template_max_level}")
             
+            card_id = card_ids[index]
+            card = mw.col.get_card(card_id)
+            
             if note_type_template_min_level <= new_rep_count_tag_index <= note_type_template_max_level:
                 # unsuspend card_ids[index] this is unlocked now
-                unlocked_card_type = card_ids[index]
+
+                mw.col.sched.unsuspend_cards([card_id])
                 
-                card = mw.col.get_card(unlocked_card_type)
                 
-                mw.col.sched.unsuspend_cards([unlocked_card_type])
-                print(f"UNLOCKED | card_id: {unlocked_card_type} | template_name_index: {index}  | TemplateIndex:{card.ord} | {template_names[card.ord]}")
+                # status_all += f"{index} | {template_name} : UNLOCKED = \n "
+                status_out = f"=> {template_name} : UNLOCKED"
+                # changes['unlocked'].append({
+                #     'card_id': card_id,
+                #     'template_name': template_names[card.ord],
+                #     'template_index': card.ord
+                # })
+                
+                # print(f"UNLOCKED | card_id: {card_id} | template_name_index: {index}  | TemplateIndex:{card.ord} | {template_names[card.ord]}")
                 
                 
             else:
                 # suspend card_ids[index] this is locked now
-                locked_card_type = card_ids[index]
                 
-                card = mw.col.get_card(locked_card_type)
+                mw.col.sched.suspend_cards([card_id])
+                # status_all += f"{index} | {template_name} : LOCKED = \n"
+                # changes['locked'].append({
+                #     'card_id': card_id,
+                #     'template_name': template_names[card.ord],
+                #     'template_index': card.ord
+                # })
                 
-                mw.col.sched.suspend_cards([locked_card_type])
-                print(f"LOCKED | card_id: {locked_card_type} | template_name_index: {index}  | TemplateIndex:{card.ord} | {template_names[card.ord]}")
-            
-            
-
-
+                # print(f"LOCKED | card_id: {card_id} | template_name_index: {index}  | TemplateIndex:{card.ord} | {template_names[card.ord]}")
+        # print(status_all)
+        # mw.statusBar().showMessage(status_all, 6000)
+        return status_out
         
         
         # for index, card_id in enumerate(card_ids):
@@ -327,11 +341,6 @@ class mastery_card_grader:
         #         mw.col.sched.suspend_cards([card_id])
                 
         #         print(f"LOCKED | card_id: {card_id} | card_id_note_index: {index}  | TemplateIndex:{card.ord} | {template_names[card.ord]}")
-
-
-
-
-
 
     def set_up_mastery_of_note(self, note:Note):
         print(f"Added a note to deck! | NOTE: {note}")
@@ -347,33 +356,6 @@ class mastery_card_grader:
         mw.col.update_note(note)
         self.suspend_unsuspend_cards_in_note_based_on_rep_of_note(note, new_rep_count_tag_index=0)
         
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     def get_template(self, card:Card):
         print("========TEMPLATES AVALIABLE========")
@@ -393,18 +375,6 @@ class mastery_card_grader:
         mw.col.update_card(card)
     # gui_hooks.reviewer_did_show_question.append(get_template)
 
-
-
-
-
-
-
-
-
-
-
-
-
     # reviewer: Reviewer=None
     # Reviewer._showQuestion = wrap(Reviewer._showQuestion, suspend_locked_cards, 'before')
     def suspend_locked_notes(self):
@@ -416,9 +386,6 @@ class mastery_card_grader:
         
         print(f"SUSPENDED a NOTE: {note_id}")
         mw.deckBrowser.refresh()
-        
-
-
 
     def unsuspend_locked_cards_in_a_note(self):
 
@@ -433,15 +400,7 @@ class mastery_card_grader:
 
         print(f"UNSUSPENDED {len(card_ids)} card from NOTE: {note_id}")
         mw.deckBrowser.refresh()
-        
 
-
-
-
-
-
-
-        
     def suspend_locked_card(self):
         # A card from a note
         card_id = 1738138852201
@@ -450,9 +409,7 @@ class mastery_card_grader:
 
         print(f"SUSPENDED a CARD: {card_id}")
         mw.deckBrowser.refresh()
-        
 
-        
     def unsuspend_locked_card(self):
         # A card from a note
         card_id = 1738138852201
@@ -461,14 +418,12 @@ class mastery_card_grader:
         
         print(f"UNSUSPENDED a CARD: {card_id}")
         mw.deckBrowser.refresh()
-        
-
 
     def get_target_deck(self):
         """Retrieve the deck name from the add-on's configuration."""
         config = mw.addonManager.getConfig(__name__)
         return config.get("target_deck", "Default")
-    
+
     def set_target_deck_from_config(self):
         self.target_deck = self.get_target_deck()
 
@@ -476,12 +431,11 @@ class mastery_card_grader:
         target_deck = self.get_target_deck()
         showInfo(f"Config:{target_deck} \n Enabled: {self.target_deck}")
 
-
     def on_config_change(self, updated_config):
         """Function triggered when config updates."""
         new_deck = updated_config.get("target_deck", "Default")
         showInfo(f"Config updated! New target deck: {new_deck}")
-    
+
 
 
 
@@ -524,7 +478,11 @@ def deck_check_then_call(call_back, *args, **kwargs):
     # Example condition
     current_deck_id = mw.col.decks.get_current_id()
     print(current_deck_id)
-    print(f"DECKIDCURT: {type(current_deck_id)} | {current_deck_id} | InMASTERY: {masteryDatahandler.is_deck_in_mastery(str(current_deck_id))}")
+    
+    info = f"DECKIDCURT: {type(current_deck_id)} | {current_deck_id} | InMASTERY: {masteryDatahandler.is_deck_in_mastery(str(current_deck_id))}"
+    
+    print(info)
+    tooltip(info)
     
     if masteryDatahandler.is_deck_in_mastery(str(current_deck_id)):
     # if some_value:  # Replace `some_value` with your actual condition
@@ -562,9 +520,14 @@ action = QAction("Show LOADED MasteryData", mw)
 action.triggered.connect(PreviewWindow)
 mw.form.menuTools.addAction(action)
 
-# action = QAction("Show Single Card Viewer", mw)
-# action.triggered.connect(PreviewWindow)
-# mw.form.menuTools.addAction(action)
+
+def some_test():
+    mw.statusBar().showMessage("Some Magic text1\nMORE STYUUFF\nsadkjaklsjd", 2500)
+    tooltip("Some Magic text")
+
+action = QAction("TEST", mw)
+action.triggered.connect(some_test)
+mw.form.menuTools.addAction(action)
 
 
 # # Add to Anki's profile loaded hook

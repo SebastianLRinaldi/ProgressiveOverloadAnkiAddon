@@ -1,3 +1,12 @@
+
+my_string = f"template_name:status\ntemplate_name1:status\n "
+
+
+
+
+# Print the formatted status
+print(my_string )
+
 # # import the main window object (mw) from aqt
 # from aqt import mw
 # # import the "show info" tool from utils.py
