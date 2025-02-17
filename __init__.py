@@ -118,10 +118,7 @@ class AnkiButton(Enum):
     EASY = 4
 
 class mastery_card_grader:
-    def __init__(self):
-        self.target_deck = None
-        self.set_target_deck_from_config()
-        
+    def __init__(self):        
         #["Level_0", "level_1", "level_2", "level_3"]
         self.MasteryDataLevels = None 
 
@@ -419,27 +416,6 @@ class mastery_card_grader:
         print(f"UNSUSPENDED a CARD: {card_id}")
         mw.deckBrowser.refresh()
 
-    def get_target_deck(self):
-        """Retrieve the deck name from the add-on's configuration."""
-        config = mw.addonManager.getConfig(__name__)
-        return config.get("target_deck", "Default")
-
-    def set_target_deck_from_config(self):
-        self.target_deck = self.get_target_deck()
-
-    def show_target_deck(self):
-        target_deck = self.get_target_deck()
-        showInfo(f"Config:{target_deck} \n Enabled: {self.target_deck}")
-
-    def on_config_change(self, updated_config):
-        """Function triggered when config updates."""
-        new_deck = updated_config.get("target_deck", "Default")
-        showInfo(f"Config updated! New target deck: {new_deck}")
-
-
-
-
-
 
 
 mastery_card_addon = mastery_card_grader()
@@ -490,6 +466,7 @@ def deck_check_then_call(call_back, *args, **kwargs):
     else:
         print("Condition not met. Callback not executed.")
         
+gui_hooks.main_window_did_init.append(lambda: masteryDatahandler.load_config(mw.addonManager.getConfig(__name__)))
 
 # Update the cards Mastery tag apon anwsering again -1 or good +1
 # gui_hooks.reviewer_did_init()
@@ -503,7 +480,7 @@ gui_hooks.add_cards_did_add_note.append(
     )
 
 # # Allows for updating configs while app is running
-# mw.addonManager.setConfigUpdatedAction(__name__, mastery_card_addon.on_config_change)
+mw.addonManager.setConfigUpdatedAction(__name__, masteryDatahandler.on_config_update)
 
 
 from application.FrontEnd.presentation.MasterySetupWindow import MasterySetupWindow
@@ -516,9 +493,9 @@ action.triggered.connect(add_note_types_to_comboBox)
 mw.form.menuTools.addAction(action)
 
 
-action = QAction("Show LOADED MasteryData", mw)
-action.triggered.connect(PreviewWindow)
-mw.form.menuTools.addAction(action)
+# action = QAction("Show LOADED MasteryData", mw)
+# action.triggered.connect(PreviewWindow)
+# mw.form.menuTools.addAction(action)
 
 
 def some_test():

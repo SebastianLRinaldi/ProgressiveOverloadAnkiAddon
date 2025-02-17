@@ -2,19 +2,31 @@ import json
 from typing import Optional, Any, Union, Dict
 from pathlib import Path
 from application.MiddleEnd.integreation.MasterTypes import NoteTypeItem
+from aqt.qt import QAction
+from aqt.operations.collection import CollectionOp
+from aqt import mw
+from aqt.utils import tooltip
 
 class MasteryDataHandler:
-    def __init__(self, json_path: Optional[Union[str, Path]] = None):
+    def __init__(self):
         """
         Initialize the MasteryDataHandler class.
         
         Args:
             json_path: Path to JSON file (optional). If provided, loads the file immediately.
         """
-        self.json_path = json_path
+        self.json_path = None
         self.data: Dict[str, Any] = {}
-        if json_path:
-            self.load_json(json_path)
+    
+    def load_config(self, config: dict):
+        
+        path = config.get("mastery_data_path", "Default")
+        self.json_path = path
+        if path:
+            self.load_json(path)
+            mw.statusBar().showMessage(f"CurrentPath: {path}", 10000)
+            # tooltip(f"CurrentPath: {path}")
+            # print(config)
 
     def load_json(self, json_path: Union[str, Path]) -> None:
         """Load JSON data from file."""
@@ -25,6 +37,34 @@ class MasteryDataHandler:
         """Save JSON data to file."""
         with open(self.json_path, 'w', encoding='utf-8') as f:
             json.dump(self.data, f, indent=4)
+            
+            
+            
+    def get_mastery_data_path(self):
+        """Retrieve the deck name from the add-on's configuration."""
+        config = mw.addonManager.getConfig(__name__)
+        print(config)
+        # print("var is", config['mastery_data_path'])
+        # print(mw.col.all_config())        
+        # path = mw.col.get_config("mastery_data_path", "Default")
+        # return path
+
+    # def set_target_deck_from_config():
+    #     target_deck = get_mastery_data()
+
+    # def show_target_deck(self):
+    #     target_deck = get_mastery_data()
+    #     showInfo(f"Config:{target_deck} \n Enabled: {target_deck}")
+    
+    # "C:\\Users\\epics\\AppData\\Roaming\\Anki2\\addons21\\ProgressiveOverloadAnkiAddon\\user_files\\masteryData_test.json"
+    # "C:\\Users\\epics\\AppData\\Roaming\\Anki2\\addons21\\ProgressiveOverloadAnkiAddon\\user_files\\masteryDataWorking.json"
+
+
+    def on_config_update(self, config_data: dict):
+        """Function triggered when config updates."""
+        updated_path = config_data.get("mastery_data_path", "Default")
+        self.load_json(updated_path)
+        print(updated_path)
 
     
     ####################################

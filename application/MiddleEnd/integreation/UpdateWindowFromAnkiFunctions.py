@@ -54,7 +54,11 @@ def get_decks_from_anki():
 # Get Info from MasteryData
 #####################################
 # "C:\\Users\\epics\\AppData\\Roaming\\Anki2\\addons21\\ProgressiveOverloadAnkiAddon\\user_files\\masteryData_test.json"
-masteryDatahandler = MasteryDataHandler("C:\\Users\\epics\\AppData\\Roaming\\Anki2\\addons21\\ProgressiveOverloadAnkiAddon\\user_files\\masteryDataWorking.json")
+# masteryDatahandler = MasteryDataHandler("C:\\Users\\epics\\AppData\\Roaming\\Anki2\\addons21\\ProgressiveOverloadAnkiAddon\\user_files\\masteryDataWorking.json")
+
+
+masteryDatahandler = MasteryDataHandler()
+
 
 
 def load_templates_from_Json(templates: List, note_type_item: NoteTypeItem):
@@ -212,7 +216,6 @@ def save_prefix_and_rep_count_tags(selectedNoteTypeItem: NoteTypeItem):
         
     # print(f"\nAFTER {masteryDatahandler.data}\n")
     
-
 
 
 
