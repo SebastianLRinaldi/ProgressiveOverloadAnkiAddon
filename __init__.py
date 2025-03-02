@@ -353,7 +353,7 @@ class mastery_card_grader:
         mw.col.update_note(mw.col.get_note(note_id))
         
         print(f"SUSPENDED a NOTE: {note_id}")
-        mw.deckBrowser.refresh()
+        # mw.deckBrowser.refresh()
 
     def unsuspend_locked_cards_in_a_note(self):
 
@@ -367,7 +367,7 @@ class mastery_card_grader:
         mw.col.update_note(mw.col.get_note(note_id))
 
         print(f"UNSUSPENDED {len(card_ids)} card from NOTE: {note_id}")
-        mw.deckBrowser.refresh()
+        # mw.deckBrowser.refresh()
 
     def suspend_locked_card(self):
         # A card from a note
@@ -376,7 +376,7 @@ class mastery_card_grader:
         mw.col.update_card(mw.col.get_card(card_id))
 
         print(f"SUSPENDED a CARD: {card_id}")
-        mw.deckBrowser.refresh()
+        # mw.deckBrowser.refresh()
 
     def unsuspend_locked_card(self):
         # A card from a note
@@ -385,7 +385,7 @@ class mastery_card_grader:
         mw.col.update_card(mw.col.get_card(card_id))
         
         print(f"UNSUSPENDED a CARD: {card_id}")
-        mw.deckBrowser.refresh()
+        # mw.deckBrowser.refresh()
 
 
 

@@ -23,16 +23,20 @@ from anki import hooks
 # Get Info from Anki
 #####################################
 
+def add_note_type_item(name, id):
+    item = NoteTypeItem(name, id)
+    note_type_drop_down.addItem(name, item)
+    
+    if masteryDatahandler.is_note_type_in_mastery(id):
+        note_type_drop_down.setItemData(note_type_drop_down.count() - 1, QBrush(QColor("green")), Qt.ItemDataRole.ForegroundRole)
+
 def add_note_types_to_comboBox():
     note_type_drop_down.clear()
     
     note_types = mw.col.models.all_names_and_ids()
     
     for note_type in note_types:
-        # note_type_drop_down.addItem(f"{note_type.name}, {note_type.id}")
-        note_type_drop_down.addItem(note_type.name, NoteTypeItem(note_type.name, note_type.id))
-        
-
+        add_note_type_item(note_type.name, note_type.id)
 
 def get_note_type_templates(note_type_item: NoteTypeItem):
         # print(f"Loading data for: {note_type_item.note_type_name} (ID: {note_type_item.note_type_id})")
@@ -155,7 +159,7 @@ def load_template_tag_with_prefix(note_type_item: NoteTypeItem):
         max_tag_level = "XXX"
         
     tag_prefix_with_level.setText(f"{tag_prefix}{max_tag_level}")
-    print(f"NOTEFOUND: {masteryDatahandler.is_note_type_in_mastery(note_type_item.note_type_id)} TAG: {max_tag_level}")
+    # print(f"NOTEFOUND: {masteryDatahandler.is_note_type_in_mastery(note_type_item.note_type_id)} TAG: {max_tag_level}")
 
     
     
