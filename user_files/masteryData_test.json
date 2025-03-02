@@ -3,6 +3,10 @@
         "1739349006740": {
             "deck_id": "1739349006740",
             "deck_name": "TESTTEST"
+        },
+        "1716367443920": {
+            "deck_id": "1716367443920",
+            "deck_name": "test Deck"
         }
     },
     "note_types": {
@@ -84,21 +88,21 @@
             "templates": {
                 "Card 1": {
                     "template_name": "Card 1",
-                    "init_card_state": "LEARNING",
+                    "init_card_state": "NEW",
                     "template_reps": 1,
                     "min_level": 0,
                     "max_level": 0
                 },
                 "Card 2": {
                     "template_name": "Card 2",
-                    "init_card_state": "NEW",
+                    "init_card_state": "LEARNING",
                     "template_reps": 1,
                     "min_level": 1,
                     "max_level": 1
                 },
                 "Card 3": {
                     "template_name": "Card 3",
-                    "init_card_state": "NEW",
+                    "init_card_state": "LEARNING",
                     "template_reps": 4,
                     "min_level": 2,
                     "max_level": 5

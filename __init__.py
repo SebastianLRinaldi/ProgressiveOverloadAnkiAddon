@@ -118,6 +118,13 @@ class AnkiButton(Enum):
     GOOD = 3
     EASY = 4
 
+from anki.consts import CARD_TYPE_NEW, CARD_TYPE_LRN, CARD_TYPE_REV, CARD_TYPE_RELEARNING
+class CardState(Enum):
+    AUTO = CARD_TYPE_NEW
+    NEW = CARD_TYPE_NEW
+    LEARNING = CARD_TYPE_LRN
+    REVIEW = CARD_TYPE_REV
+    RELEARNING = CARD_TYPE_RELEARNING
 
 
 class mastery_card_grader:
@@ -277,8 +284,31 @@ class mastery_card_grader:
 
         return status_out
         
+    
+    def set_card_init_state(self, note:Note):
+        card_ids = note.card_ids()
+        note_type_info = note.note_type()
         
+        template_names = [f"{template['name']}" for template in note_type_info['tmpls']]
 
+        note_type_id = str(note.note_type()["id"])
+        
+        for index, template_name in enumerate(template_names):
+            state = masteryDatahandler.get_note_type_template_init_card_state(note_type_id, template_name)
+            
+            if state != "AUTO":
+                try:
+                    card_id = card_ids[index]
+                    card = mw.col.get_card(card_id)
+                    card.type = CardState[state].value
+                    mw.col.update_card(card)
+                    print(f"TEMP CARD: {card} | TYPE: {card.type} - SAVED")
+                except Exception as e:
+                    print(f"STATE ERROR: {e}")
+        mw.Browse
+        mw.deckBrowser.show()
+                
+                
     def set_up_mastery_of_note(self, note:Note):
         print(f"Added a note to deck! | NOTE: {note}")
         
@@ -291,7 +321,10 @@ class mastery_card_grader:
         # for updating tags you need to have a update called for the tags to stick
         mw.col.update_note(note)
         self.suspend_unsuspend_cards_in_note_based_on_rep_of_note(note, new_rep_count_tag_index=0)
-        
+        self.set_card_init_state(note)
+
+
+
 
     def get_template(self, card:Card):
         print("========TEMPLATES AVALIABLE========")
