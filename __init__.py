@@ -305,7 +305,6 @@ class mastery_card_grader:
                     print(f"TEMP CARD: {card} | TYPE: {card.type} - SAVED")
                 except Exception as e:
                     print(f"STATE ERROR: {e}")
-        mw.Browse
         mw.deckBrowser.show()
                 
                 
