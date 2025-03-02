@@ -90,6 +90,7 @@ import aqt
 from aqt import mw
 from aqt.qt import *
 from aqt.reviewer import Reviewer
+from anki.consts import CARD_TYPE_NEW, CARD_TYPE_LRN, CARD_TYPE_REV, CARD_TYPE_RELEARNING
 from anki.cards import Card
 from anki.notes import Note
 from aqt import gui_hooks
@@ -116,6 +117,12 @@ class AnkiButton(Enum):
     HARD = 2
     GOOD = 3
     EASY = 4
+
+class CardState(Enum):
+    NEW = CARD_TYPE_NEW
+    LEARNING = CARD_TYPE_LRN
+    REVIEW = CARD_TYPE_REV
+    RELEARNING = CARD_TYPE_RELEARNING
 
 class mastery_card_grader:
     def __init__(self):        
@@ -223,121 +230,58 @@ class mastery_card_grader:
         mw.col.update_note(note)
         # op = mw.col.save()
         # CollectionOp(parent=mw, op=op).run_in_background()
+        
+    # def set_card_type_on_add(state: CardState, card: Card=None):
+    #     temp_card = mw.col.get_card(1717780484094)
+    #     temp_card.type = state.value
+    #     card.flush()
 
+    
     """
-    Need to make sure we can set multiple tiers for level seperate from templates/cards in notes
-    and it still suspend the right card_ids
-
-    levels 1-10
-    cards 1-3
-
-    1,2,3
-    card 1
-
-    4,5,6,7
-    card 2
-
-    8,9,10
-    card 3
-
-
-    Will probally adjust new_rep_count_tag_index before checking aganst the card_ids 
-    in the future
-
+    for index, cardtype in enumerate (list of cardtypes)
+        cardtype["minReps"]
+        cardtype["maxReps"]
+        if new_rep_count_tag_index is between min <= x <= max 
+            new_card_unlocked_index = index
+    
+    list of max rep levels of templates
+    
+    card_types = level_0, level_1, level_2, level_3
+    minreps =   0  ,   10    ,  20    ,  30
+    maxreps =   9  ,   19   ,   29   ,  39
     """
     def suspend_unsuspend_cards_in_note_based_on_rep_of_note(self, note:Note, new_rep_count_tag_index=0):
-        # note_id = 1738139190318
-        # note = mw.col.get_note(note_id)
         card_ids = note.card_ids()
         note_type_info = note.note_type()
         
-        template_names_with_index = [f"{idx}:{template['name']}" for idx, template in enumerate(note_type_info['tmpls'])]
+        # template_names_with_index = [f"{idx}:{template['name']}" for idx, template in enumerate(note_type_info['tmpls'])]
         template_names = [f"{template['name']}" for template in note_type_info['tmpls']]
-        print(card_ids)
-        print(template_names_with_index)
-        print(template_names)
+        # print(card_ids)
+        # print(template_names_with_index)
+        # print(template_names)
         
-        """
-        for index in len (reps) or for index, cardtype in enumerate (list of cardtypes)
-            minReps[index]
-            maxReps[index]
-            if new_rep_count_tag_index is between min <= x <= max 
-                new_card_unlocked_index = index
-                
-                
-        for index, cardtype in enumerate (list of cardtypes)
-            cardtype["minReps"]
-            cardtype["maxReps"]
-            if new_rep_count_tag_index is between min <= x <= max 
-                new_card_unlocked_index = index
-        
-        list of max rep levels of templates
-        
-        card_types = level_0, level_1, level_2, level_3
-        minreps =   0  ,   10    ,  20    ,  30
-        maxreps =   9  ,   19   ,   29   ,  39
-        """
-        
-        # status_all = ""
         status_out = ""
         
         note_type_id = str(note.note_type()["id"])
         
         for index, template_name in enumerate(template_names):
-            # note_type_template = masteryDatahandler.get_a_note_type_template(note_type_id, template_name)
             note_type_template_min_level = masteryDatahandler.get_note_type_template_min_level(note_type_id, template_name)
             note_type_template_max_level = masteryDatahandler.get_note_type_template_max_level(note_type_id, template_name)
-            
-            
-            print(f"MIN: {note_type_template_min_level} <= | new_tag: {new_rep_count_tag_index} | <= MAX: {note_type_template_max_level}")
-            
+                        
             card_id = card_ids[index]
             card = mw.col.get_card(card_id)
-            
             if note_type_template_min_level <= new_rep_count_tag_index <= note_type_template_max_level:
                 # unsuspend card_ids[index] this is unlocked now
-
                 mw.col.sched.unsuspend_cards([card_id])
-                
-                
-                # status_all += f"{index} | {template_name} : UNLOCKED = \n "
                 status_out = f"=> {template_name} : UNLOCKED"
-                # changes['unlocked'].append({
-                #     'card_id': card_id,
-                #     'template_name': template_names[card.ord],
-                #     'template_index': card.ord
-                # })
-                
-                # print(f"UNLOCKED | card_id: {card_id} | template_name_index: {index}  | TemplateIndex:{card.ord} | {template_names[card.ord]}")
-                
-                
+
             else:
                 # suspend card_ids[index] this is locked now
-                
                 mw.col.sched.suspend_cards([card_id])
-                # status_all += f"{index} | {template_name} : LOCKED = \n"
-                # changes['locked'].append({
-                #     'card_id': card_id,
-                #     'template_name': template_names[card.ord],
-                #     'template_index': card.ord
-                # })
-                
-                # print(f"LOCKED | card_id: {card_id} | template_name_index: {index}  | TemplateIndex:{card.ord} | {template_names[card.ord]}")
-        # print(status_all)
-        # mw.statusBar().showMessage(status_all, 6000)
+
         return status_out
         
         
-        # for index, card_id in enumerate(card_ids):
-        #     card = mw.col.get_card(card_id)
-        #     if index == new_rep_count_tag_index:
-        #         mw.col.sched.unsuspend_cards([card_id])
-                
-        #         print(f"UNLOCKED | card_id: {card_id} | card_id_note_index: {index}  | TemplateIndex:{card.ord} | {template_names[card.ord]}")
-        #     else:
-        #         mw.col.sched.suspend_cards([card_id])
-                
-        #         print(f"LOCKED | card_id: {card_id} | card_id_note_index: {index}  | TemplateIndex:{card.ord} | {template_names[card.ord]}")
 
     def set_up_mastery_of_note(self, note:Note):
         print(f"Added a note to deck! | NOTE: {note}")
@@ -347,7 +291,6 @@ class mastery_card_grader:
         
         # If no mastery level is found, add the first level (LEVEL_0)
         note.add_tag(self.MasteryDataLevels[0])
-        note.flags
         print(f"Added FIRST mastery level to other tags: {note.tags}")
         # for updating tags you need to have a update called for the tags to stick
         mw.col.update_note(note)
@@ -485,12 +428,25 @@ mw.addonManager.setConfigUpdatedAction(__name__, masteryDatahandler.on_config_up
 
 from application.FrontEnd.presentation.MasterySetupWindow import MasterySetupWindow
 from application.FrontEnd.presentation.PreviewWindow import PreviewWindow
+from application.FrontEnd.presentation.ExtentionDebugWindow import ExtentionDebugWindow
 from application.MiddleEnd.integreation.UpdateWindowFromAnkiFunctions import add_note_types_to_comboBox
 # Add menu action
 action = QAction("Mastery Setup", mw)
 action.triggered.connect(MasterySetupWindow)
-action.triggered.connect(add_note_types_to_comboBox)
+action.triggered.connect(add_note_types_to_comboBox) #TODO Is this needed? I thought we made it so that it loaded always, double check that
 mw.form.menuTools.addAction(action)
+
+
+action = QAction("DEBUG", mw)
+action.triggered.connect(ExtentionDebugWindow)
+mw.form.menuTools.addAction(action)
+
+
+# # Add to Anki's profile loaded hook
+# gui_hooks.profile_did_open.append(initialize)
+
+
+
 
 
 # action = QAction("Show LOADED MasteryData", mw)
@@ -501,15 +457,6 @@ mw.form.menuTools.addAction(action)
 def some_test():
     mw.statusBar().showMessage("Some Magic text1\nMORE STYUUFF\nsadkjaklsjd", 2500)
     tooltip("Some Magic text")
-
-action = QAction("TEST", mw)
-action.triggered.connect(some_test)
-mw.form.menuTools.addAction(action)
-
-
-# # Add to Anki's profile loaded hook
-# gui_hooks.profile_did_open.append(initialize)
-
 
 
 

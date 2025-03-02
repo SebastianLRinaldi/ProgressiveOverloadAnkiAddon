@@ -46,7 +46,25 @@ def get_decks_from_anki():
     return mw.col.decks.deck_tree() 
     # return mw.col.decks.all_names_and_ids()
     # return mw.col.decks.all()
-
+    
+    
+from anki.consts import CARD_TYPE_NEW, CARD_TYPE_LRN, CARD_TYPE_REV, CARD_TYPE_RELEARNING
+class CardState(Enum):
+    NEW = CARD_TYPE_NEW
+    LEARNING = CARD_TYPE_LRN
+    REVIEW = CARD_TYPE_REV
+    RELEARNING = CARD_TYPE_RELEARNING
+    
+def set_card_type_on_add(state: CardState, id:str, card: Card=None):
+    print(f"{state}{type(state)} | {id}{type(id)}")
+    try:
+        temp_card = mw.col.get_card(int(id))
+        temp_card.type = CardState[state].value
+        mw.col.update_card(temp_card)
+        print(f"TEMP CARD: {temp_card} | TYPE: {temp_card.type} - SAVED")
+        mw.deckBrowser.refresh()
+    except Exception as e:
+        print(f"STATE ERROR: {e}")
 
 
 

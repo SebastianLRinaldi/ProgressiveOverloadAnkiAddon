@@ -39,6 +39,14 @@ next_btn = Button("NEXT CARD")
 
 
 
+###############################
+dbug_info = LineEdit(text="target info")
+dbug_num = ComboBox()
+dbug_num.addItems(["NEW", "LEARNING", "REVIEW", "RELEARNING"])
+dbug_btn = Button(text="send info to target function")
+###############################
+
+
 
 
 

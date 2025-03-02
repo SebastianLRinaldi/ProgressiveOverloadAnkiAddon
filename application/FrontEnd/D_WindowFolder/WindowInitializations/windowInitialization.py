@@ -2,3 +2,4 @@ from application.FrontEnd.D_WindowFolder.WindowConfigureations.windowConfigureat
 
 window = Window()
 previewWindow = Window()
+debugWindow = Window()
