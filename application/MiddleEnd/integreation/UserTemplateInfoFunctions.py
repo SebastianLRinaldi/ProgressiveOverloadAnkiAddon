@@ -14,11 +14,8 @@ def get_templates_with_level_info() -> List[EditableTemplateListItem]:
         item = template_levels_list.item(index)
         # To really get the data stores we need to get the widget
         widget = template_levels_list.itemWidget(item)
-        
-        
+
         itemWidgets.append(widget)
-        
-        
         
     return itemWidgets
 
@@ -35,6 +32,9 @@ def get_template_id(itemWidget: EditableTemplateListItem):
 
 def get_template_reps(itemWidget: EditableTemplateListItem):
     return itemWidget.template_reps
+
+def get_template_state(itemWidget: EditableTemplateListItem):
+    return itemWidget.initCardState
 
 def get_template_all_data(itemWidget: EditableTemplateListItem):
     return itemWidget.getAllData()

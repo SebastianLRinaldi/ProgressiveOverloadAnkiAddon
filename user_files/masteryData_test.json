@@ -61,6 +61,56 @@
                     "max_level": 19
                 }
             }
+        },
+        "1739176305792": {
+            "note_type_id": "1739176305792",
+            "note_type_name": "(_A_TEST_NOTE_TYPE copy",
+            "tag_creation_settings": {
+                "tag_prefix": "level_",
+                "start_rep": 0,
+                "rep_count_tags": [
+                    "level_0",
+                    "level_1",
+                    "level_2",
+                    "level_3",
+                    "level_4",
+                    "level_5",
+                    "level_6",
+                    "level_7",
+                    "level_8",
+                    "level_9"
+                ]
+            },
+            "templates": {
+                "Card 1": {
+                    "template_name": "Card 1",
+                    "init_card_state": "LEARNING",
+                    "template_reps": 1,
+                    "min_level": 0,
+                    "max_level": 0
+                },
+                "Card 2": {
+                    "template_name": "Card 2",
+                    "init_card_state": "NEW",
+                    "template_reps": 1,
+                    "min_level": 1,
+                    "max_level": 1
+                },
+                "Card 3": {
+                    "template_name": "Card 3",
+                    "init_card_state": "NEW",
+                    "template_reps": 4,
+                    "min_level": 2,
+                    "max_level": 5
+                },
+                "Card 4": {
+                    "template_name": "Card 4",
+                    "init_card_state": "REVIEW",
+                    "template_reps": 4,
+                    "min_level": 6,
+                    "max_level": 9
+                }
+            }
         }
     }
 }

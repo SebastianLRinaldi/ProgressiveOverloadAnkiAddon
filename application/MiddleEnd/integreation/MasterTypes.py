@@ -62,7 +62,9 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QLineEdit,
     QLabel,
-    QSpinBox
+    QComboBox,
+    QSpinBox,
+    
 )
 
 # class EditableTemplateListItem(QWidget):
@@ -85,11 +87,8 @@ from PyQt6.QtWidgets import (
 #         layout.addWidget(self.level_spinbox)
 
 
-
-
-
 class EditableTemplateListItem(QWidget):
-    def __init__(self, template_index=-1, template_name="", template_id="", template_reps=-1):
+    def __init__(self, template_index=-1, template_name="", template_id="", template_reps=-1, state="NEW"):
         super().__init__()
         
         
@@ -97,12 +96,14 @@ class EditableTemplateListItem(QWidget):
         self.template_name = template_name
         self.template_id = template_id
         self.template_reps = template_reps
+        self.initCardState = state
         
         self.data = {
             'index': template_index,
             'name': template_name,
             'id': template_id,
-            'reps': template_reps
+            'reps': template_reps,
+            'initState': state
             }
         
         
@@ -135,8 +136,15 @@ class EditableTemplateListItem(QWidget):
         self.reps_spinbox.setValue(self.template_reps)
         layout.addWidget(self.reps_spinbox)
         
+        # State ComboBox
+        self.state_combobox = QComboBox()
+        self.state_combobox.addItems(["AUTO", "NEW", "LEARNING", "REVIEW", "RELEARNING"])
+        self.state_combobox.setCurrentText(state)
+        layout.addWidget(self.state_combobox)
+        
         # Could also just do widget.reps_spin_box.value()
         self.reps_spinbox.valueChanged.connect(self.update_reps)
+        self.state_combobox.currentTextChanged.connect(self.update_state)
         
     def getAllData(self):
         return self.data
@@ -146,5 +154,7 @@ class EditableTemplateListItem(QWidget):
         self.template_reps = value  # Update the attribute
         self.data['reps'] = value  # Ensure data dictionary is updated
         
-        
-        
+    def update_state(self, state):
+        """Update template_reps when QSpinBox value changes."""
+        self.initCardState = state
+        self.data['initState'] = state        

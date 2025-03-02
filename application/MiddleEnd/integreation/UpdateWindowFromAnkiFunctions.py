@@ -78,7 +78,7 @@ def set_card_type_on_add(state: CardState, id:str, card: Card=None):
 masteryDatahandler = MasteryDataHandler()
 
 
-
+# TODO loading the templates with defaults seems to use dulipcate code so I could clean this up
 def load_templates_from_Json(templates: List, note_type_item: NoteTypeItem):
     # Check if note_type has templates stored in MasteryData
     # If it does store the info
@@ -89,27 +89,28 @@ def load_templates_from_Json(templates: List, note_type_item: NoteTypeItem):
         # print(template)
         template_name = template["name"]
         id = template["id"]
-        
         rep_count = 0
+        init_card_state = "no" 
         
         if masteryDatahandler.is_template_in_note_type(note_type_item.note_type_id, template_name):
             saved_rep_count = masteryDatahandler.get_note_type_template_rep_count(note_type_item.note_type_id, template_name)
             rep_count = saved_rep_count
             
+            saved_init_card_state =  masteryDatahandler.get_note_type_template_init_card_state(note_type_item.note_type_id, template_name)
+            init_card_state = saved_init_card_state
         
-        item = EditableTemplateListItem(index, template_name, id, rep_count)
+        item = EditableTemplateListItem(index, template_name, id, rep_count, init_card_state)
         template_levels_list.addMasteryItem(item)
         # print(f"LOADED FROM JSON | {index, template_name, id, rep_count}")
     
-
-
 def load_templates_with_defaults(templates: List):
     for index, template in enumerate(templates):
         # print(template)
         template_name = template["name"]
         id = template["id"]
         rep_count = 5
-        item = EditableTemplateListItem(index, template_name, id, rep_count)
+        template_init_state = "AUTOno" 
+        item = EditableTemplateListItem(index, template_name, id, rep_count, template_init_state)
         template_levels_list.addMasteryItem(item)
     
 def load_template_list(templates, note_type_item: NoteTypeItem):
@@ -207,10 +208,10 @@ def save_window_info_to_json():
     for index, itemWidget in enumerate(itemWidgets):
         template_name = get_template_name(itemWidget)
         rep_count = get_template_reps(itemWidget)
-        
+        init_card_state = get_template_state(itemWidget)
         # print(f"\t{template_name} | reps:{rep_count}")
         
-        masteryDatahandler.add_template_level_manual_level_count(selectedNoteTypeItem, template_name, rep_count)
+        masteryDatahandler.add_template_level_manual_level_count(selectedNoteTypeItem, template_name, rep_count, init_card_state)
         
         masteryDatahandler.save_json()
         

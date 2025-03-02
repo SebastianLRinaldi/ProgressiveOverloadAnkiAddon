@@ -19,20 +19,23 @@ class MasteryDataHandler:
         self.data: Dict[str, Any] = {}
     
     def load_config(self, config: dict):
-        
         path = config.get("mastery_data_path", "Default")
-        self.json_path = path
         if path:
             self.load_json(path)
-            mw.statusBar().showMessage(f"CurrentPath: {path}", 10000)
-            # tooltip(f"CurrentPath: {path}")
-            # print(config)
+            self.check_path()
+    
 
-    def load_json(self, json_path: Union[str, Path]) -> None:
+    def load_json(self, path: Union[str, Path]) -> None:
         """Load JSON data from file."""
-        with open(json_path, 'r', encoding='utf-8') as f:
+        with open(path, 'r', encoding='utf-8') as f:
+            self.json_path = path 
             self.data = json.load(f) or {}
-            
+    
+    def check_path(self):
+        mw.statusBar().showMessage(f"CurrentPath: {self.json_path}", 10000)
+        # tooltip(f"CurrentPath: {path}")
+        # print(config)
+    
     def save_json(self) -> None:
         """Save JSON data to file."""
         with open(self.json_path, 'w', encoding='utf-8') as f:
@@ -65,6 +68,7 @@ class MasteryDataHandler:
         updated_path = config_data.get("mastery_data_path", "Default")
         self.load_json(updated_path)
         print(updated_path)
+        self.check_path()
 
     
     ####################################
@@ -185,6 +189,15 @@ class MasteryDataHandler:
             result = None
         return result
     
+    
+    def  get_note_type_template_init_card_state(self, note_type_id: str, template_name) -> int:
+        try:
+            note_type_template = self.get_a_note_type_template(note_type_id, template_name)
+            result = note_type_template["init_card_state"]
+        except Exception as e:
+            result = None
+        return result
+    
     def  get_note_type_template_min_level(self, note_type_id: str, template_name) -> int:
         try:
             note_type_template = self.get_a_note_type_template(note_type_id, template_name)
@@ -283,12 +296,12 @@ class MasteryDataHandler:
         return rep_count_tags
 
             
-    def add_template_level_manual_level_count(self, note_type_item: NoteTypeItem, template_name_to_update, card_type_total_rep_count):
+    def add_template_level_manual_level_count(self, note_type_item: NoteTypeItem, template_name_to_update, card_type_total_rep_count, init_card_state):
         """Add a new template level with calculated end"""
         note_type_id = note_type_item.note_type_id
 
         last_template_name = self.get_last_template_stored(note_type_id)
-        
+        print(f"state: {init_card_state}")
         if last_template_name is not None:
             # start = self.data["note_types"][note_type_id]["templates"][template_name]["start"]
             prev_template_end = self.data["note_types"][note_type_id]["templates"][last_template_name]["max_level"]
@@ -297,6 +310,7 @@ class MasteryDataHandler:
             
             self.data["note_types"][note_type_id]["templates"][template_name_to_update] = {
                 "template_name": template_name_to_update,
+                "init_card_state": init_card_state,
                 "template_reps": card_type_total_rep_count,
                 "min_level": start,
                 "max_level": end
@@ -319,6 +333,7 @@ class MasteryDataHandler:
                     {
                         template_name_to_update: {
                             "template_name": template_name_to_update,
+                            "init_card_state": init_card_state,
                             "template_reps": card_type_total_rep_count,
                             "min_level": start,
                             "max_level": end

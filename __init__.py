@@ -118,11 +118,7 @@ class AnkiButton(Enum):
     GOOD = 3
     EASY = 4
 
-class CardState(Enum):
-    NEW = CARD_TYPE_NEW
-    LEARNING = CARD_TYPE_LRN
-    REVIEW = CARD_TYPE_REV
-    RELEARNING = CARD_TYPE_RELEARNING
+
 
 class mastery_card_grader:
     def __init__(self):        
