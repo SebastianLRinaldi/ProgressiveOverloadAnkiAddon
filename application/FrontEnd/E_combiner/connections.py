@@ -11,7 +11,7 @@ available_decks_tree.clicked.connect(update_status)
 toggle_deck_connection.clicked.connect(toggle_connection)
 
 note_type_drop_down.beforePopup.connect(add_note_types_to_comboBox)
-note_type_drop_down.highlighted.connect(update_win_info_from_combobox)
+note_type_drop_down.currentIndexChanged.connect(update_win_info_from_combobox)
 
 tag_prefix_edit.textChanged.connect(lambda: refreash_template_tag_with_prefix(get_selected_note_type_from_drop_down()))
 template_levels_list.itemDoubleClicked.connect(preview_cards_with_template)
