@@ -136,7 +136,7 @@ class MasteryDataHandler:
     def get_start_number(self, note_type_id: str) -> int:
         try:
             note_info = self.get_note_type_mastery(note_type_id)
-            result = note_info["tag_creation_settings"]["start_level"]
+            result = note_info["tag_creation_settings"]["start_rep"]
         except Exception as e:
             result = None
         return result
@@ -164,7 +164,7 @@ class MasteryDataHandler:
     ####################################
     def get_note_type_templates(self, note_type_id: str) -> Dict[str, Any]:
         try:
-            note_info = self.get_note_type_mastery(note_type_id)
+            note_info = self.get_note_type_mastery(str(note_type_id))
             result = note_info["templates"]
         except Exception as e:
             result = None
@@ -181,7 +181,7 @@ class MasteryDataHandler:
             result = None
         return result
     
-    def  get_note_type_template_rep_count(self, note_type_id: str, template_name) -> int:
+    def get_note_type_template_rep_count(self, note_type_id: str, template_name) -> int:
         try:
             note_type_template = self.get_a_note_type_template(note_type_id, template_name)
             result = note_type_template["template_reps"]
@@ -190,7 +190,7 @@ class MasteryDataHandler:
         return result
     
     
-    def  get_note_type_template_init_card_state(self, note_type_id: str, template_name) -> int:
+    def get_note_type_template_init_card_state(self, note_type_id: str, template_name) -> str:
         try:
             note_type_template = self.get_a_note_type_template(note_type_id, template_name)
             result = note_type_template["init_card_state"]
@@ -198,7 +198,7 @@ class MasteryDataHandler:
             result = None
         return result
     
-    def  get_note_type_template_min_level(self, note_type_id: str, template_name) -> int:
+    def get_note_type_template_min_level(self, note_type_id: str, template_name) -> int:
         try:
             note_type_template = self.get_a_note_type_template(note_type_id, template_name)
             result = note_type_template["min_level"]
@@ -206,7 +206,7 @@ class MasteryDataHandler:
             result = None
         return result
     
-    def  get_note_type_template_max_level(self, note_type_id: str, template_name) -> int:
+    def get_note_type_template_max_level(self, note_type_id: str, template_name) -> int:
         try:
             note_type_template = self.get_a_note_type_template(note_type_id, template_name)
             result = note_type_template["max_level"]
@@ -229,8 +229,8 @@ class MasteryDataHandler:
     def set_tag_prefix(self, note_type_id: str, tag_prefix: str) -> None:
         self.get_note_type_mastery(note_type_id)["tag_creation_settings"]["tag_prefix"] = tag_prefix
 
-    def set_start_number(self, note_type_id: str, start_level: int) -> None:
-        self.get_note_type_mastery(note_type_id)["tag_creation_settings"]["start_level"] = start_level
+    def set_start_number(self, note_type_id: str, start_rep: int) -> None:
+        self.get_note_type_mastery(note_type_id)["tag_creation_settings"]["start_rep"] = start_rep
         
     def set_rep_count_tags(self, note_type_id: str, rep_count_tags: list[str]) -> None:
         self.get_note_type_mastery(note_type_id)["tag_creation_settings"]["rep_count_tags"] = rep_count_tags
