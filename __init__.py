@@ -103,11 +103,14 @@ from anki import hooks
 import json
 from enum import Enum
 
-from application.MiddleEnd.MasteryCardGrader import masteryCardAddon
+sys.path.append(os.path.dirname(__file__))
+
+# from application.MiddleEnd.MasteryCardGrader import masteryCardAddon
+from application.MiddleEnd.MasteryCardGraderWCustomData import masteryCardGrader
 from application.MiddleEnd.MasteryDatahandler import masteryDatahandler
 
 
-sys.path.append(os.path.dirname(__file__))
+
 
 
 #########################################################
@@ -171,12 +174,12 @@ gui_hooks.main_window_did_init.append(lambda: masteryDatahandler.load_config(mw.
 # Update the cards Mastery tag apon anwsering again -1 or good +1
 # gui_hooks.reviewer_did_init()
 gui_hooks.reviewer_did_answer_card.append(
-    lambda *args, **kwargs: deck_check_then_call(masteryCardAddon.on_card_grade, *args, **kwargs)
+    lambda *args, **kwargs: deck_check_then_call(masteryCardGrader.on_card_grade, *args, **kwargs)
 )
 
 # Adding a new note will set first level tag and first card type "Unlocked", other card types with be suspended "Locked"
 gui_hooks.add_cards_did_add_note.append(
-    lambda *args, **kwargs: deck_check_then_call(masteryCardAddon.set_up_mastery_of_note, *args, **kwargs)
+    lambda *args, **kwargs: deck_check_then_call(masteryCardGrader.set_up_mastery_of_note, *args, **kwargs)
     )
 
 # # Allows for updating configs while app is running
