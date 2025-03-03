@@ -17,7 +17,7 @@ from aqt.utils import showInfo, showInfo, qconnect
 from anki.hooks import addHook
 from anki import hooks
 
-
+from application.MiddleEnd.MasteryDatahandler import masteryDatahandler
 
 #####################################
 # Get Info from Anki
@@ -79,7 +79,7 @@ def get_decks_from_anki():
 # masteryDatahandler = MasteryDataHandler("C:\\Users\\epics\\AppData\\Roaming\\Anki2\\addons21\\ProgressiveOverloadAnkiAddon\\user_files\\masteryDataWorking.json")
 
 
-masteryDatahandler = MasteryDataHandler()
+
 
 
 # TODO loading the templates with defaults seems to use dulipcate code so I could clean this up
