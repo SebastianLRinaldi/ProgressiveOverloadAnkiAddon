@@ -156,18 +156,18 @@ from application.MiddleEnd.MasteryDatahandler import masteryDatahandler
 def deck_check_then_call(call_back, *args, **kwargs):
     # Example condition
     current_deck_id = mw.col.decks.get_current_id()
-    print(current_deck_id)
+    # print(current_deck_id)
     
     info = f"DECKIDCURT: {type(current_deck_id)} | {current_deck_id} | InMASTERY: {masteryDatahandler.is_deck_in_mastery(str(current_deck_id))}"
     
-    print(info)
+    # print(info)
     tooltip(info)
     
     if masteryDatahandler.is_deck_in_mastery(str(current_deck_id)):
     # if some_value:  # Replace `some_value` with your actual condition
         return call_back(*args, **kwargs)  # Call the callback with optional arguments
     else:
-        print("Condition not met. Callback not executed.")
+        print("Deck not assigned mastery: Callback not executed.")
         
 gui_hooks.main_window_did_init.append(lambda: masteryDatahandler.load_config(mw.addonManager.getConfig(__name__)))
 

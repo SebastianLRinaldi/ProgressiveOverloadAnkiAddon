@@ -301,7 +301,7 @@ class MasteryDataHandler:
         note_type_id = note_type_item.note_type_id
 
         last_template_name = self.get_last_template_stored(note_type_id)
-        print(f"state: {init_card_state}")
+        # print(f"state: {init_card_state}")
         if last_template_name is not None:
             # start = self.data["note_types"][note_type_id]["templates"][template_name]["start"]
             prev_template_end = self.data["note_types"][note_type_id]["templates"][last_template_name]["max_level"]

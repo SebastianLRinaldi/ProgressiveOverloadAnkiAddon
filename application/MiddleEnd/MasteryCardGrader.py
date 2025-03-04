@@ -120,7 +120,6 @@ class mastery_card_grader:
         else:
             # If no mastery level is found, add the first level (LEVEL_0)
             note.add_tag(self.MasteryDataLevels[0])
-            note
             print(f"Added FIRST mastery level: {note.tags}")
             tooltip(f"No Mastery Tag -> Added: {note.tags}")
             

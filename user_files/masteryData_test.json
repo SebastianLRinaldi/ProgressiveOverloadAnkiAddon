@@ -80,41 +80,37 @@
                     "level_0",
                     "level_1",
                     "level_2",
-                    "level_3",
-                    "level_4",
-                    "level_5",
-                    "level_6",
-                    "level_7"
+                    "level_3"
                 ]
             },
             "templates": {
                 "Card 1": {
                     "template_name": "Card 1",
                     "init_card_state": "NEW",
-                    "template_reps": 2,
+                    "template_reps": 1,
                     "min_level": 0,
-                    "max_level": 1
+                    "max_level": 0
                 },
                 "Card 2": {
                     "template_name": "Card 2",
                     "init_card_state": "LEARNING",
-                    "template_reps": 2,
-                    "min_level": 2,
-                    "max_level": 3
+                    "template_reps": 1,
+                    "min_level": 1,
+                    "max_level": 1
                 },
                 "Card 3": {
                     "template_name": "Card 3",
                     "init_card_state": "LEARNING",
-                    "template_reps": 2,
-                    "min_level": 4,
-                    "max_level": 5
+                    "template_reps": 1,
+                    "min_level": 2,
+                    "max_level": 2
                 },
                 "Card 4": {
                     "template_name": "Card 4",
                     "init_card_state": "REVIEW",
-                    "template_reps": 2,
-                    "min_level": 6,
-                    "max_level": 7
+                    "template_reps": 1,
+                    "min_level": 3,
+                    "max_level": 3
                 }
             }
         }

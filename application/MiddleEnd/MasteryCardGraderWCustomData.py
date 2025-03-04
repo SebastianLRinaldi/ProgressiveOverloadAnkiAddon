@@ -3,7 +3,7 @@ from application.MiddleEnd.integreation.UpdateWindowFromAnkiFunctions import *
 import random
 import time
 import json
-from enum import Enum
+from enum import Enum, auto
 from anki.collection import Collection
 from anki.decks import DeckConfigDict
 from aqt.utils import tooltip
@@ -18,6 +18,11 @@ class AnkiButton(Enum):
     HARD = 2
     GOOD = 3
     EASY = 4
+    
+class LevelUpStatus(Enum):
+    NO_LEVEL_UP = auto()
+    LEVEL_UP_REPS_ZERO = auto()
+    LEVEL_UP_REPS_NOT_ZERO = auto()
 
 from anki.consts import CARD_TYPE_NEW, CARD_TYPE_LRN, CARD_TYPE_REV, CARD_TYPE_RELEARNING
 class CardState(Enum):
@@ -28,7 +33,7 @@ class CardState(Enum):
 
 
 
-
+# TODO see if you need to update_card with every set or if it works to update_cards after the for loop
 class MasterySharedUtils:
     def set_mastery_data_levels(self, note_type_id_from_anki: int):
         self.MasteryDataLevels = masteryDatahandler.get_all_rep_count_tags(str(note_type_id_from_anki))
@@ -112,7 +117,6 @@ class mastery_card_add(MasterySharedUtils):
         # print("delays:", group_conf["new"]["delays"], "reps left:", reps_left)
         return reps_left * 1000 + reps_left
     
-    
     def put_in_learning(self, card: Card) -> None:
         cfg = mw.col.decks.config_dict_for_deck_id(self.current_deck_id(card))
         card.type = 1
@@ -179,39 +183,96 @@ class mastery_card_grader(MasterySharedUtils):
         mw.col.update_cards(note.cards())
         
     def adjust_success_count(self, ease_button, current_count, min_count, max_count):
-        print(f"{ease_button} == {AnkiButton.AGAIN.value} and {current_count} > {min_count}")
+        # print(f"{ease_button} == {AnkiButton.AGAIN.value} and {current_count} > {min_count}")
+        result = current_count
+        status = MasteryUpdate.STAY
         if ease_button == AnkiButton.AGAIN.value and current_count > min_count:
-            return max(current_count - 1, min_count)
+            result = max(current_count - 1, min_count)
+            status = MasteryUpdate.DECREASE
         elif ease_button == AnkiButton.GOOD.value and current_count < max_count:
-            return min(current_count + 1, max_count)
-        return current_count
+            result = min(current_count + 1, max_count)
+            status = MasteryUpdate.INCREASE
+        return result, status
         
     def update_note_success(self, note:Note, card:Card, ease_button):
         ntID = note.note_type()['id']
         min_note = masteryDatahandler.get_start_number(ntID)
         max_note = len(masteryDatahandler.get_all_rep_count_tags(ntID)) - 1
-        current_note = self.get_note_success_count(card)
-        new_note_count = self.adjust_success_count(ease_button, current_note, min_note, max_note)
-        return current_note, new_note_count
+        current_note_count = self.get_note_success_count(card)
+        new_note_count, update_status = self.adjust_success_count(ease_button, current_note_count, min_note, max_note)
+        return current_note_count, new_note_count, update_status
         
     def update_card_success(self, note:Note, card:Card, ease_button):
         ntID = note.note_type()['id']
         template_name = card.template()['name']
         min_card = masteryDatahandler.get_note_type_template_min_level(ntID, template_name)
         max_card = masteryDatahandler.get_note_type_template_max_level(ntID, template_name)
-        current_card = self.get_card_success_count(card)
-        new_card_count = self.adjust_success_count(ease_button, current_card, min_card, max_card)
-        return new_card_count
+        current_card_count = self.get_card_success_count(card)
+        new_card_count, update_status = self.adjust_success_count(ease_button, current_card_count, min_card, max_card)
+        return new_card_count, update_status
+    
+    def level(self, success_count, note: Note):
+        ntID = note.note_type()['id']
+        for level, card in enumerate(note.cards()):
+            template_name = card.template()['name']
+            min_level = masteryDatahandler.get_note_type_template_min_level(ntID, template_name)
+            max_level = masteryDatahandler.get_note_type_template_max_level(ntID, template_name)
+            if min_level <= success_count <= max_level:
+                return level
+        return -1
+    
+    def did_level_change(self, old_count, new_count, note):
+        return self.level(old_count, note) != self.level(new_count, note)
+    
+    def handle_sched_and_sus_on_level_up(self, old_count, new_count, note: Note) -> LevelUpStatus:
+        status = LevelUpStatus.NO_LEVEL_UP
+        if self.did_level_change(old_count, new_count, note):
+            active_card: Card = note.cards()[self.level(new_count, note)]
+            self.suspend_unsuspend_cards(note, new_count)
+            if not active_card.reps:
+                # print("LEVEL UP")
+                # print(f"CHANGED DUE = [B: {card.due} | A:{mw.col.sched.today + 1}]")
+                active_card.due = mw.col.sched.today + 1
+                mw.col.update_card(active_card)
+                status = LevelUpStatus.LEVEL_UP_REPS_ZERO
+            else:
+                # print("PROMPTED")
+                status = LevelUpStatus.LEVEL_UP_REPS_NOT_ZERO
+        return status
+    
+    def handle_message_for_level_up(self, note: Note, level_up_status, update_status, ease_button, old_count, new_count):
+        active_card: Card = note.cards()[self.level(new_count, note)]
+        template_name = active_card.template()['name']
+        if level_up_status == LevelUpStatus.NO_LEVEL_UP:
+            if update_status == MasteryUpdate.STAY and ease_button == AnkiButton.AGAIN:
+                print(f"Reps min reached: [{old_count} = {new_count}] | {template_name}")
+                tooltip(f"Reps min reached: [{old_count} = {new_count}] | {template_name}", period=6000)
+            else:
+                print(f"Reps max reached: [{old_count} = {new_count}] | {template_name}")
+                tooltip(f"Reps max reached: [{old_count} = {new_count}] | {template_name}", period=6000)
+        elif level_up_status == LevelUpStatus.LEVEL_UP_REPS_ZERO:
+            print(f"Reps changed: [{old_count} → {new_count}] | 🎉 NEW LEVEL! {template_name}")
+            tooltip(f"Reps changed: [{old_count} → {new_count}] | 🎉 NEW LEVEL! {template_name}", period=6000)
+        elif level_up_status == LevelUpStatus.LEVEL_UP_REPS_NOT_ZERO:
+            if new_count > old_count:
+                print(f"Reps changed: [{old_count} → {new_count}] | ⬆️ {template_name}")
+                tooltip(f"Reps changed: [{old_count} → {new_count}] | ⬆️ {template_name}", period=6000)
+            else:
+                print(f"Reps changed: [{old_count} → {new_count}] | ⬇️ {template_name}")
+                tooltip(f"Reps changed: [{old_count} → {new_count}] | ⬇️ {template_name}", period=6000)
         
     def on_card_grade(self, reviewer:Reviewer=None, card:Card=None, ease_button=None):
         note = card.note()
         ntID = note.note_type()['id']
-        self.set_mastery_data_levels(ntID)
-        current_note, new_note_count = self.update_note_success(note, card, ease_button)
-        new_card_count = self.update_card_success(note, card, ease_button)
+        self.set_mastery_data_levels(ntID) #! IDK if self.masteryLevels needs to be here or util class
+        old_note_count, new_note_count, update_status = self.update_note_success(note, card, ease_button)
+        new_card_count, card_update_status = self.update_card_success(note, card, ease_button)
+        level_up_status = self.handle_sched_and_sus_on_level_up(old_note_count, new_note_count, note)
         self.set_card_success_count(card, new_card_count)
         self.sync_note_success_count_to_siblings(note, new_note_count)
-        self.suspend_unsuspend_cards(note, new_note_count)
-        tooltip(f"Rep count adjusted: {current_note} → {new_note_count}", period=4500)
+        
+        self.handle_message_for_level_up(note, level_up_status, update_status, ease_button, old_note_count, new_note_count)
+        
+        
 
 masteryCardGrader = mastery_card_grader()
