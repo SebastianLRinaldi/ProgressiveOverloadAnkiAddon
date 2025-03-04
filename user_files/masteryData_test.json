@@ -42,24 +42,28 @@
             "templates": {
                 "Card 1": {
                     "template_name": "Card 1",
+                    "init_card_state": "NEW",
                     "template_reps": 5,
                     "min_level": 0,
                     "max_level": 4
                 },
                 "Card 2": {
                     "template_name": "Card 2",
+                    "init_card_state": "NEW",
                     "template_reps": 5,
                     "min_level": 5,
                     "max_level": 9
                 },
                 "Card 3": {
                     "template_name": "Card 3",
+                    "init_card_state": "NEW",
                     "template_reps": 5,
                     "min_level": 10,
                     "max_level": 14
                 },
                 "Card 4": {
                     "template_name": "Card 4",
+                    "init_card_state": "NEW",
                     "template_reps": 5,
                     "min_level": 15,
                     "max_level": 19

@@ -182,9 +182,6 @@ gui_hooks.add_cards_did_add_note.append(
     lambda *args, **kwargs: deck_check_then_call(masteryCardAdder.add_note_with_mastery, *args, **kwargs)
     )
 
-
-
-
 # # Allows for updating configs while app is running
 mw.addonManager.setConfigUpdatedAction(__name__, masteryDatahandler.on_config_update)
 

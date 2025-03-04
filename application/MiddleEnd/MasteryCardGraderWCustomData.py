@@ -1,10 +1,11 @@
-import json
-from enum import Enum
 from aqt.utils import showInfo, showText, tooltip, qconnect
 from application.MiddleEnd.integreation.UpdateWindowFromAnkiFunctions import *
-
+import random
+import time
 import json
 from enum import Enum
+from anki.collection import Collection
+from anki.decks import DeckConfigDict
 from aqt.utils import tooltip
 
 class MasteryUpdate(Enum):
@@ -20,7 +21,6 @@ class AnkiButton(Enum):
 
 from anki.consts import CARD_TYPE_NEW, CARD_TYPE_LRN, CARD_TYPE_REV, CARD_TYPE_RELEARNING
 class CardState(Enum):
-    AUTO = CARD_TYPE_NEW
     NEW = CARD_TYPE_NEW
     LEARNING = CARD_TYPE_LRN
     REVIEW = CARD_TYPE_REV
@@ -94,6 +94,46 @@ On card grade
 class mastery_card_add(MasterySharedUtils):
     def __init__(self):
         self.MasteryDataLevels = None 
+        
+    def current_deck_id(self, card: Card) -> int:
+        """
+        The original deck the card came from if it's in a filtered deck. Otherwise did=0.
+            If odid > 0 → use that (the real deck).
+            Else → just use did.
+        """
+        return card.odid if card.odid > 0 else card.did
+    
+    def reps_to_graduate(self, card: Card) -> int:
+
+        group_conf: DeckConfigDict = mw.col.decks.config_dict_for_deck_id(self.current_deck_id(card))
+
+        reps_left = len(group_conf["new"]["delays"])
+
+        # print("delays:", group_conf["new"]["delays"], "reps left:", reps_left)
+        return reps_left * 1000 + reps_left
+    
+    
+    def put_in_learning(self, card: Card) -> None:
+        cfg = mw.col.decks.config_dict_for_deck_id(self.current_deck_id(card))
+        card.type = 1
+        card.queue = 1
+        card.ivl = 0
+        card.due = int(time.time() - random.randint(0, 100))
+        card.left = self.reps_to_graduate(card)
+        card.reps = 0
+        card.lapses = 0
+        card.factor = cfg["new"]["initialFactor"]
+
+    def put_in_review(self, card: Card) -> None:
+        cfg = mw.col.decks.config_dict_for_deck_id(self.current_deck_id(card))
+        # print_nested_dict(cfg)
+        card.type = 2
+        card.queue = 2
+        card.ivl = cfg["new"]["ints"][0]  # Or cfg["new"]["easyIv"] if you're feeling generous
+        card.due = mw.col.sched.today + card.ivl
+        card.reps = 0
+        card.lapses = 0
+        card.factor = cfg["new"]["initialFactor"]
 
     def init_success_count_data(self, note: Note):
         for card in note.cards():
@@ -111,10 +151,12 @@ class mastery_card_add(MasterySharedUtils):
             # note.id is the note that you create
             # note.note_type()['id'] gives us the id of the note type
             state = masteryDatahandler.get_note_type_template_init_card_state(ntID, template_name)
-            if state != "AUTO":
-                card.type = CardState[state].value
+            if state != "NEW":
+                if state == "LEARNING":
+                    self.put_in_learning(card)
+                elif state == "REVIEW":
+                    self.put_in_review(card)
                 mw.col.update_card(card)
-        # mw.col.update_cards(note.cards())
     
     def add_note_with_mastery(self, note:Note):
         ntID = note.note_type()['id']
@@ -135,16 +177,6 @@ class mastery_card_grader(MasterySharedUtils):
         for card in note.cards():
             self.set_note_success_count(card, new_success_count)
         mw.col.update_cards(note.cards())
-
-    # def adjustment_of_success_count(self, ease_button, current_success_count, min_count, max_count):
-    #     result = None
-    #     if ease_button == AnkiButton.AGAIN.value and current_success_count != min_count:
-    #         result = MasteryUpdate.DECREASE
-    #     elif ease_button == AnkiButton.GOOD.value and current_success_count != max_count:
-    #         result = MasteryUpdate.INCREASE
-    #     else:
-    #         result = MasteryUpdate.STAY
-    #     return result 
         
     def adjust_success_count(self, ease_button, current_count, min_count, max_count):
         print(f"{ease_button} == {AnkiButton.AGAIN.value} and {current_count} > {min_count}")
@@ -162,7 +194,6 @@ class mastery_card_grader(MasterySharedUtils):
         new_note_count = self.adjust_success_count(ease_button, current_note, min_note, max_note)
         return current_note, new_note_count
         
-        
     def update_card_success(self, note:Note, card:Card, ease_button):
         ntID = note.note_type()['id']
         template_name = card.template()['name']
@@ -171,7 +202,6 @@ class mastery_card_grader(MasterySharedUtils):
         current_card = self.get_card_success_count(card)
         new_card_count = self.adjust_success_count(ease_button, current_card, min_card, max_card)
         return new_card_count
-        
         
     def on_card_grade(self, reviewer:Reviewer=None, card:Card=None, ease_button=None):
         note = card.note()
