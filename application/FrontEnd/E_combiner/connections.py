@@ -16,7 +16,6 @@ note_type_drop_down.currentIndexChanged.connect(update_win_info_from_combobox)
 tag_prefix_edit.textChanged.connect(lambda: refreash_template_tag_with_prefix(get_selected_note_type_from_drop_down()))
 template_levels_list.itemDoubleClicked.connect(preview_cards_with_template)
 
-#! Why is this note circular import
 save_note_type_mastery_button.clicked.connect(save_window_info_to_json)
 
 

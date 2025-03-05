@@ -244,22 +244,31 @@ class mastery_card_grader(MasterySharedUtils):
         active_card: Card = note.cards()[self.level(new_count, note)]
         template_name = active_card.template()['name']
         if level_up_status == LevelUpStatus.NO_LEVEL_UP:
-            if update_status == MasteryUpdate.STAY and ease_button == AnkiButton.AGAIN:
+            if update_status == MasteryUpdate.STAY and AnkiButton(ease_button) == AnkiButton.AGAIN:
                 print(f"Reps min reached: [{old_count} = {new_count}] | {template_name}")
                 tooltip(f"Reps min reached: [{old_count} = {new_count}] | {template_name}", period=6000)
-            else:
+            elif update_status == MasteryUpdate.STAY and AnkiButton(ease_button) == AnkiButton.GOOD:
                 print(f"Reps max reached: [{old_count} = {new_count}] | {template_name}")
                 tooltip(f"Reps max reached: [{old_count} = {new_count}] | {template_name}", period=6000)
+            else:
+                print(f"Reps adjusted: [{old_count} → {new_count}] | {template_name}")
+                tooltip(f"Reps adjusted: [{old_count} → {new_count}] | {template_name}", period=6000)
         elif level_up_status == LevelUpStatus.LEVEL_UP_REPS_ZERO:
             print(f"Reps changed: [{old_count} → {new_count}] | 🎉 NEW LEVEL! {template_name}")
             tooltip(f"Reps changed: [{old_count} → {new_count}] | 🎉 NEW LEVEL! {template_name}", period=6000)
         elif level_up_status == LevelUpStatus.LEVEL_UP_REPS_NOT_ZERO:
-            if new_count > old_count:
+            if AnkiButton(ease_button) == AnkiButton.GOOD:
                 print(f"Reps changed: [{old_count} → {new_count}] | ⬆️ {template_name}")
                 tooltip(f"Reps changed: [{old_count} → {new_count}] | ⬆️ {template_name}", period=6000)
-            else:
+            elif AnkiButton(ease_button) == AnkiButton.AGAIN:
                 print(f"Reps changed: [{old_count} → {new_count}] | ⬇️ {template_name}")
                 tooltip(f"Reps changed: [{old_count} → {new_count}] | ⬇️ {template_name}", period=6000)
+            else:
+                print(f"Y{level_up_status}, {update_status}, {ease_button}, reps[B:{old_count} A:{new_count}]")
+                tooltip(f"Y{level_up_status}, {update_status}, {ease_button}, reps[B:{old_count} A:{new_count}]", period=15000)
+        else:
+            print(f"Z{level_up_status}, {update_status}, {ease_button}, reps[B:{old_count} A:{new_count}]")
+            tooltip(f"Z{level_up_status}, {update_status}, {ease_button}, reps[B:{old_count} A:{new_count}]", period=15000)
         
     def on_card_grade(self, reviewer:Reviewer=None, card:Card=None, ease_button=None):
         note = card.note()
@@ -270,7 +279,7 @@ class mastery_card_grader(MasterySharedUtils):
         level_up_status = self.handle_sched_and_sus_on_level_up(old_note_count, new_note_count, note)
         self.set_card_success_count(card, new_card_count)
         self.sync_note_success_count_to_siblings(note, new_note_count)
-        
+        # XXX sus/unsus was here before just as a reminder
         self.handle_message_for_level_up(note, level_up_status, update_status, ease_button, old_note_count, new_note_count)
         
         
