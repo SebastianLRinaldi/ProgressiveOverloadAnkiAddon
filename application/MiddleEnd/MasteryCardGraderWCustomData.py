@@ -271,8 +271,7 @@ class mastery_card_grader(MasterySharedUtils):
         if msg:
             notify(msg)
         else:
-            tag = "Y" if level_up_status == LevelUpStatus.LEVEL_CHANGED_REPS_NOT_ZERO else "Z"
-            notify(f"{tag}: {level_up_status}, {update_status}, {btn}, reps[B:{old_count} A:{new_count}]", period=15000)
+            notify(f"UNKNOWN-CONDTIONS: {level_up_status}, {update_status}, {btn}, reps[B:{old_count} A:{new_count}]", period=15000)
 
             
     def on_card_grade(self, reviewer:Reviewer=None, card:Card=None, ease_button=None):
