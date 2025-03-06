@@ -21,8 +21,8 @@ class AnkiButton(Enum):
     
 class LevelUpStatus(Enum):
     NO_LEVEL_UP = auto()
-    LEVEL_UP_REPS_ZERO = auto()
-    LEVEL_UP_REPS_NOT_ZERO = auto()
+    LEVEL_CHANGED_REPS_ZERO = auto()
+    LEVEL_CHANGED_REPS_NOT_ZERO = auto()
 
 from anki.consts import CARD_TYPE_NEW, CARD_TYPE_LRN, CARD_TYPE_REV, CARD_TYPE_RELEARNING
 class CardState(Enum):
@@ -236,10 +236,10 @@ class mastery_card_grader(MasterySharedUtils):
                 # print(f"CHANGED DUE = [B: {card.due} | A:{mw.col.sched.today + 1}]")
                 active_card.due = mw.col.sched.today + 1
                 mw.col.update_card(active_card)
-                status = LevelUpStatus.LEVEL_UP_REPS_ZERO
+                status = LevelUpStatus.LEVEL_CHANGED_REPS_ZERO
             else:
                 # print("PROMPTED")
-                status = LevelUpStatus.LEVEL_UP_REPS_NOT_ZERO
+                status = LevelUpStatus.LEVEL_CHANGED_REPS_NOT_ZERO
         return status
     
     
@@ -258,10 +258,11 @@ class mastery_card_grader(MasterySharedUtils):
         conditions_to_messages = {
             (LevelUpStatus.NO_LEVEL_UP, MasteryUpdate.STAY, AnkiButton.AGAIN): f"Reps min reached: {same} | {name}",
             (LevelUpStatus.NO_LEVEL_UP, MasteryUpdate.STAY, AnkiButton.GOOD): f"Reps max reached: {same} | {name}",
-            (LevelUpStatus.NO_LEVEL_UP, None, None): f"Reps adjusted: {arrow} | {name}",
-            (LevelUpStatus.LEVEL_UP_REPS_ZERO, None, None): f"Reps changed: {arrow} | 🎉 NEW LEVEL! {name}",
-            (LevelUpStatus.LEVEL_UP_REPS_NOT_ZERO, None, AnkiButton.GOOD): f"Reps changed: {arrow} | ⬆️ {name}",
-            (LevelUpStatus.LEVEL_UP_REPS_NOT_ZERO, None, AnkiButton.AGAIN): f"Reps changed: {arrow} | ⬇️ {name}",
+            (LevelUpStatus.NO_LEVEL_UP, MasteryUpdate.INCREASE, AnkiButton.GOOD):f"Reps increased: {arrow} | {name}",
+            (LevelUpStatus.NO_LEVEL_UP, MasteryUpdate.DECREASE, AnkiButton.AGAIN): f"Reps decreased: {arrow} | {name}",
+            (LevelUpStatus.LEVEL_CHANGED_REPS_ZERO, MasteryUpdate.INCREASE, AnkiButton.GOOD): f"Reps increased: {arrow} | 🎉 NEW LEVEL! {name}",
+            (LevelUpStatus.LEVEL_CHANGED_REPS_NOT_ZERO, MasteryUpdate.INCREASE, AnkiButton.GOOD): f"Reps increased: {arrow} | Level ⬆️ {name}",
+            (LevelUpStatus.LEVEL_CHANGED_REPS_NOT_ZERO, MasteryUpdate.DECREASE, AnkiButton.AGAIN): f"Reps decreased: {arrow} | Level ⬇️ {name}",
         }
 
         # Try to get the message based on the combination of (level_up_status, update_status, btn)
@@ -270,8 +271,8 @@ class mastery_card_grader(MasterySharedUtils):
         if msg:
             notify(msg)
         else:
-            tag = "Y" if level_up_status == LevelUpStatus.LEVEL_UP_REPS_NOT_ZERO else "Z"
-            notify(f"{tag}{level_up_status}, {update_status}, {ease_button}, reps[B:{old_count} A:{new_count}]", period=15000)
+            tag = "Y" if level_up_status == LevelUpStatus.LEVEL_CHANGED_REPS_NOT_ZERO else "Z"
+            notify(f"{tag}: {level_up_status}, {update_status}, {btn}, reps[B:{old_count} A:{new_count}]", period=15000)
 
             
     def on_card_grade(self, reviewer:Reviewer=None, card:Card=None, ease_button=None):
