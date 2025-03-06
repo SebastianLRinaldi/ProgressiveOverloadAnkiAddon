@@ -30,6 +30,8 @@ class CardState(Enum):
     LEARNING = CARD_TYPE_LRN
     REVIEW = CARD_TYPE_REV
     RELEARNING = CARD_TYPE_RELEARNING
+    
+
 
 
 
@@ -240,82 +242,38 @@ class mastery_card_grader(MasterySharedUtils):
                 status = LevelUpStatus.LEVEL_UP_REPS_NOT_ZERO
         return status
     
-    # def handle_message_for_level_up(self, note: Note, level_up_status, update_status, ease_button, old_count, new_count):
-    #     active_card: Card = note.cards()[self.level(new_count, note)]
-    #     template_name = active_card.template()['name']
-    #     if level_up_status == LevelUpStatus.NO_LEVEL_UP:
-    #         if update_status == MasteryUpdate.STAY and AnkiButton(ease_button) == AnkiButton.AGAIN:
-    #             print(f"Reps min reached: [{old_count} = {new_count}] | {template_name}")
-    #             tooltip(f"Reps min reached: [{old_count} = {new_count}] | {template_name}", period=6000)
-    #         elif update_status == MasteryUpdate.STAY and AnkiButton(ease_button) == AnkiButton.GOOD:
-    #             print(f"Reps max reached: [{old_count} = {new_count}] | {template_name}")
-    #             tooltip(f"Reps max reached: [{old_count} = {new_count}] | {template_name}", period=6000)
-    #         else:
-    #             print(f"Reps adjusted: [{old_count} → {new_count}] | {template_name}")
-    #             tooltip(f"Reps adjusted: [{old_count} → {new_count}] | {template_name}", period=6000)
-    #     elif level_up_status == LevelUpStatus.LEVEL_UP_REPS_ZERO:
-    #         print(f"Reps changed: [{old_count} → {new_count}] | 🎉 NEW LEVEL! {template_name}")
-    #         tooltip(f"Reps changed: [{old_count} → {new_count}] | 🎉 NEW LEVEL! {template_name}", period=6000)
-    #     elif level_up_status == LevelUpStatus.LEVEL_UP_REPS_NOT_ZERO:
-    #         if AnkiButton(ease_button) == AnkiButton.GOOD:
-    #             print(f"Reps changed: [{old_count} → {new_count}] | ⬆️ {template_name}")
-    #             tooltip(f"Reps changed: [{old_count} → {new_count}] | ⬆️ {template_name}", period=6000)
-    #         elif AnkiButton(ease_button) == AnkiButton.AGAIN:
-    #             print(f"Reps changed: [{old_count} → {new_count}] | ⬇️ {template_name}")
-    #             tooltip(f"Reps changed: [{old_count} → {new_count}] | ⬇️ {template_name}", period=6000)
-    #         else:
-    #             print(f"Y{level_up_status}, {update_status}, {ease_button}, reps[B:{old_count} A:{new_count}]")
-    #             tooltip(f"Y{level_up_status}, {update_status}, {ease_button}, reps[B:{old_count} A:{new_count}]", period=15000)
-    #     else:
-    #         print(f"Z{level_up_status}, {update_status}, {ease_button}, reps[B:{old_count} A:{new_count}]")
-    #         tooltip(f"Z{level_up_status}, {update_status}, {ease_button}, reps[B:{old_count} A:{new_count}]", period=15000)
-    
-    
     
     def handle_message_for_level_up(self, note: Note, level_up_status, update_status, ease_button, old_count, new_count):
-        active_card = note.cards()[self.level(new_count, note)]
-        template_name = active_card.template()['name']
-        reps_eq = f"[{old_count} = {new_count}]"
-        reps_arrow = f"[{old_count} → {new_count}]"
+        card = note.cards()[self.level(new_count, note)]
+        name = card.template()['name']
         btn = AnkiButton(ease_button)
-
+        same = f"[{old_count} = {new_count}]"
+        arrow = f"[{old_count} → {new_count}]"
+        
         def notify(msg, period=6000):
             print(msg)
             tooltip(msg, period=period)
 
-        messages = {
-            (LevelUpStatus.NO_LEVEL_UP, MasteryUpdate.STAY, AnkiButton.AGAIN): f"Reps min reached: {reps_eq} | {template_name}",
-            (LevelUpStatus.NO_LEVEL_UP, MasteryUpdate.STAY, AnkiButton.GOOD): f"Reps max reached: {reps_eq} | {template_name}",
-            (LevelUpStatus.NO_LEVEL_UP, None, None): f"Reps adjusted: {reps_arrow} | {template_name}",
-            (LevelUpStatus.LEVEL_UP_REPS_ZERO, None, None): f"Reps changed: {reps_arrow} | 🎉 NEW LEVEL! {template_name}",
-            (LevelUpStatus.LEVEL_UP_REPS_NOT_ZERO, None, AnkiButton.GOOD): f"Reps changed: {reps_arrow} | ⬆️ {template_name}",
-            (LevelUpStatus.LEVEL_UP_REPS_NOT_ZERO, None, AnkiButton.AGAIN): f"Reps changed: {reps_arrow} | ⬇️ {template_name}",
+        # Define condition-message mappings
+        conditions_to_messages = {
+            (LevelUpStatus.NO_LEVEL_UP, MasteryUpdate.STAY, AnkiButton.AGAIN): f"Reps min reached: {same} | {name}",
+            (LevelUpStatus.NO_LEVEL_UP, MasteryUpdate.STAY, AnkiButton.GOOD): f"Reps max reached: {same} | {name}",
+            (LevelUpStatus.NO_LEVEL_UP, None, None): f"Reps adjusted: {arrow} | {name}",
+            (LevelUpStatus.LEVEL_UP_REPS_ZERO, None, None): f"Reps changed: {arrow} | 🎉 NEW LEVEL! {name}",
+            (LevelUpStatus.LEVEL_UP_REPS_NOT_ZERO, None, AnkiButton.GOOD): f"Reps changed: {arrow} | ⬆️ {name}",
+            (LevelUpStatus.LEVEL_UP_REPS_NOT_ZERO, None, AnkiButton.AGAIN): f"Reps changed: {arrow} | ⬇️ {name}",
         }
 
-        # Make the key readable
-        if level_up_status == LevelUpStatus.NO_LEVEL_UP:
-            if update_status == MasteryUpdate.STAY and btn in (AnkiButton.AGAIN, AnkiButton.GOOD):
-                key = (level_up_status, update_status, btn)
-            else:
-                key = (level_up_status, None, None)
-        elif level_up_status == LevelUpStatus.LEVEL_UP_REPS_ZERO:
-            key = (level_up_status, None, None)
-        elif level_up_status == LevelUpStatus.LEVEL_UP_REPS_NOT_ZERO and btn in (AnkiButton.GOOD, AnkiButton.AGAIN):
-            key = (level_up_status, None, btn)
+        # Try to get the message based on the combination of (level_up_status, update_status, btn)
+        msg = conditions_to_messages.get((level_up_status, update_status, btn))
+
+        if msg:
+            notify(msg)
         else:
-            key = None
+            tag = "Y" if level_up_status == LevelUpStatus.LEVEL_UP_REPS_NOT_ZERO else "Z"
+            notify(f"{tag}{level_up_status}, {update_status}, {ease_button}, reps[B:{old_count} A:{new_count}]", period=15000)
 
-        if key and key in messages:
-            return notify(messages[key])
-
-        # Fallbacks
-        if level_up_status == LevelUpStatus.LEVEL_UP_REPS_NOT_ZERO:
-            fallback = f"Y{level_up_status}, {update_status}, {ease_button}, reps[B:{old_count} A:{new_count}]"
-        else:
-            fallback = f"Z{level_up_status}, {update_status}, {ease_button}, reps[B:{old_count} A:{new_count}]"
-
-        notify(fallback, period=15000)
-        
+            
     def on_card_grade(self, reviewer:Reviewer=None, card:Card=None, ease_button=None):
         note = card.note()
         ntID = note.note_type()['id']
