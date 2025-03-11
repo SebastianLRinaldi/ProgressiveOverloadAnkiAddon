@@ -100,6 +100,10 @@ from anki.hooks import wrap
 from aqt.utils import showInfo, showText, tooltip, qconnect
 from anki.hooks import addHook
 from anki import hooks
+
+
+
+
 import json
 from enum import Enum
 
@@ -119,6 +123,12 @@ from application.MiddleEnd.MasteryDatahandler import masteryDatahandler
 
 
 
+# class _BrowserDidFetchColumnsHook:
+#     """Allows you to add custom columns to the browser.
+
+
+# class _DeckOptionsDidLoadHook:
+#     """Can be used to inject extra options into the config screen.
 
 
 
@@ -178,12 +188,14 @@ gui_hooks.reviewer_did_answer_card.append(
 )
 
 # Adding a new note will set first level tag and first card type "Unlocked", other card types with be suspended "Locked"
+
 gui_hooks.add_cards_did_add_note.append(
     lambda *args, **kwargs: deck_check_then_call(masteryCardAdder.add_note_with_mastery, *args, **kwargs)
     )
 
 # # Allows for updating configs while app is running
 mw.addonManager.setConfigUpdatedAction(__name__, masteryDatahandler.on_config_update)
+
 
 
 from application.FrontEnd.presentation.MasterySetupWindow import MasterySetupWindow
