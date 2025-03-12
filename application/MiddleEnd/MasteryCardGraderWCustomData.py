@@ -64,7 +64,6 @@ class MasterySharedUtils:
         data = json.loads(card.custom_data or '{}')
         return data.get('cardsct', 0)
     
-    
     def set_card_due_date_tomorrow(self, active_card:Card):
         active_card.due = mw.col.sched.today + 1
         mw.col.update_card(active_card)
@@ -80,10 +79,6 @@ class MasterySharedUtils:
             unlocked = min_level <= success_count <= max_level
             suspended = card.queue == -1  # Suspended cards have queue -1
             if unlocked and suspended:
-                # if not card.reps:
-                #     card.due = mw.col.sched.today + 1
-                #     mw.col.update_card(card)
-                    # mw.col.update_cards(note.cards())
                 cards_to_unsuspend.append(card.id)
             elif not unlocked and not suspended:
                     cards_to_suspend.append(card.id)
