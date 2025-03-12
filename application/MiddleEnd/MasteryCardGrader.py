@@ -31,10 +31,10 @@ class mastery_card_grader:
 
     def set_mastery_data_levels(self, note_type_id_from_anki: int):
         self.MasteryDataLevels = masteryDatahandler.get_all_rep_count_tags(str(note_type_id_from_anki))
-        print("----------------")
-        # print(f"MASTERY FOR: TYPEIN: {type(note_type_id_from_anki)} | TYPEOUTSTR: {str(note_type_id_from_anki)} | INT: {note_type_id_from_anki}")
-        print(f"MASTERY LEVELS: {self.MasteryDataLevels}")
-        print("----------------")
+        # print("----------------")
+        # # print(f"MASTERY FOR: TYPEIN: {type(note_type_id_from_anki)} | TYPEOUTSTR: {str(note_type_id_from_anki)} | INT: {note_type_id_from_anki}")
+        # print(f"MASTERY LEVELS: {self.MasteryDataLevels}")
+        # print("----------------")
 
     def get_tag_of_successful_rep_count(self, note:Note) -> str:
         result = None
@@ -43,10 +43,8 @@ class mastery_card_grader:
                 result = level
                 
         return result
-        # raise ValueError("No mastery level tag found on note")  # Handle missing tag case
 
-    # MIGHT BE BETTER to find the min and max from the list instead of hard coded
-    # Something like 0 and last index
+
     def adjustment_of_tag_after_grading(self, ease_button, current_rep_count_tag):
         result = None
         # For template get min max levels
@@ -124,17 +122,9 @@ class mastery_card_grader:
             note.add_tag(self.MasteryDataLevels[0])
             print(f"Added FIRST mastery level: {note.tags}")
             tooltip(f"No Mastery Tag -> Added: {note.tags}")
-
-        
-        
+            
         mw.col.update_note(note)
-        # op = mw.col.save()
-        # CollectionOp(parent=mw, op=op).run_in_background()
-        
-    # def set_card_type_on_add(state: CardState, card: Card=None):
-    #     temp_card = mw.col.get_card(1717780484094)
-    #     temp_card.type = state.value
-    #     card.flush()
+
 
     
     """
@@ -228,68 +218,70 @@ class mastery_card_grader:
 
 
 
+    """
+    TEST FUNCTIONS
+    """
+    # def get_template(self, card:Card):
+    #     print("========TEMPLATES AVALIABLE========")
+    #     # card.note_type().keys() --> ['id', 'name', 'type', 'mod', 'usn', 'sortf', 'did', 'tmpls', 'flds', 'css', 'latexPre', 'latexPost', 'latexsvg', 'req']
+    #     note_type = card.note_type()
+    #     # template_names = [template['name'] for template in note_type['tmpls']]
+    #     template_names = [f"{idx}:{template['name']}" for idx, template in enumerate(note_type['tmpls'])]
+    #     # Print the names
+    #     print(template_names)
+    #     print("========PREV TEMPLATE========")
+    #     # print(f"{card.note_type()["tmpls"][card.ord]["name"]}")
+    #     print(f"Index:{card.ord} | {template_names[card.ord]}")
+    #     print("========NEW TEMPLATE========")
+    #     card.ord = 2
+    #     print(f"Index:{card.ord} | {template_names[card.ord]}")
+    #     print("=======++++=====")
+    #     mw.col.update_card(card)
+    # # gui_hooks.reviewer_did_show_question.append(get_template)
 
-    def get_template(self, card:Card):
-        print("========TEMPLATES AVALIABLE========")
-        # card.note_type().keys() --> ['id', 'name', 'type', 'mod', 'usn', 'sortf', 'did', 'tmpls', 'flds', 'css', 'latexPre', 'latexPost', 'latexsvg', 'req']
-        note_type = card.note_type()
-        # template_names = [template['name'] for template in note_type['tmpls']]
-        template_names = [f"{idx}:{template['name']}" for idx, template in enumerate(note_type['tmpls'])]
-        # Print the names
-        print(template_names)
-        print("========PREV TEMPLATE========")
-        # print(f"{card.note_type()["tmpls"][card.ord]["name"]}")
-        print(f"Index:{card.ord} | {template_names[card.ord]}")
-        print("========NEW TEMPLATE========")
-        card.ord = 2
-        print(f"Index:{card.ord} | {template_names[card.ord]}")
-        print("=======++++=====")
-        mw.col.update_card(card)
-    # gui_hooks.reviewer_did_show_question.append(get_template)
-
-    # reviewer: Reviewer=None
-    # Reviewer._showQuestion = wrap(Reviewer._showQuestion, suspend_locked_cards, 'before')
-    def suspend_locked_notes(self):
-        # All cards from a note
-        note_id = 1738139190318
-        mw.col.sched.suspend_notes([note_id])
+    # # reviewer: Reviewer=None
+    # # Reviewer._showQuestion = wrap(Reviewer._showQuestion, suspend_locked_cards, 'before')
+    # def suspend_locked_notes(self):
+    #     # All cards from a note
+    #     note_id = 1738139190318
+    #     mw.col.sched.suspend_notes([note_id])
         
-        mw.col.update_note(mw.col.get_note(note_id))
+    #     mw.col.update_note(mw.col.get_note(note_id))
         
-        print(f"SUSPENDED a NOTE: {note_id}")
-        # mw.deckBrowser.refresh()
+    #     print(f"SUSPENDED a NOTE: {note_id}")
+    #     # mw.deckBrowser.refresh()
 
-    def unsuspend_locked_cards_in_a_note(self):
+    # def unsuspend_locked_cards_in_a_note(self):
 
-        # All cards from a note
-        note_id = 1738139190318
-        note = mw.col.get_note(note_id)
-        card_ids = note.card_ids()
-        mw.col.sched.unsuspend_cards(card_ids)
-        # mw.col.update_cards(mw.col.get_card(card_id))
-        # mw.col.sched.suspend_notes([note_id])
-        mw.col.update_note(mw.col.get_note(note_id))
+    #     # All cards from a note
+    #     note_id = 1738139190318
+    #     note = mw.col.get_note(note_id)
+    #     card_ids = note.card_ids()
+    #     mw.col.sched.unsuspend_cards(card_ids)
+    #     # mw.col.update_cards(mw.col.get_card(card_id))
+    #     # mw.col.sched.suspend_notes([note_id])
+    #     mw.col.update_note(mw.col.get_note(note_id))
 
-        print(f"UNSUSPENDED {len(card_ids)} card from NOTE: {note_id}")
-        # mw.deckBrowser.refresh()
+    #     print(f"UNSUSPENDED {len(card_ids)} card from NOTE: {note_id}")
+    #     # mw.deckBrowser.refresh()
 
-    def suspend_locked_card(self):
-        # A card from a note
-        card_id = 1738138852201
-        mw.col.sched.suspend_cards([card_id])
-        mw.col.update_card(mw.col.get_card(card_id))
+    # def suspend_locked_card(self):
+    #     # A card from a note
+    #     card_id = 1738138852201
+    #     mw.col.sched.suspend_cards([card_id])
+    #     mw.col.update_card(mw.col.get_card(card_id))
 
-        print(f"SUSPENDED a CARD: {card_id}")
-        # mw.deckBrowser.refresh()
+    #     print(f"SUSPENDED a CARD: {card_id}")
+    #     # mw.deckBrowser.refresh()
 
-    def unsuspend_locked_card(self):
-        # A card from a note
-        card_id = 1738138852201
-        mw.col.sched.unsuspend_cards([card_id])
-        mw.col.update_card(mw.col.get_card(card_id))
+    # def unsuspend_locked_card(self):
+    #     # A card from a note
+    #     card_id = 1738138852201
+    #     mw.col.sched.unsuspend_cards([card_id])
+    #     mw.col.update_card(mw.col.get_card(card_id))
         
-        print(f"UNSUSPENDED a CARD: {card_id}")
-        # mw.deckBrowser.refresh()
+    #     print(f"UNSUSPENDED a CARD: {card_id}")
+    #     # mw.deckBrowser.refresh()
 
 
 

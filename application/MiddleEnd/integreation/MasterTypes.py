@@ -138,7 +138,7 @@ class EditableTemplateListItem(QWidget):
         
         # State ComboBox
         self.state_combobox = QComboBox()
-        self.state_combobox.addItems(["AUTO", "NEW", "LEARNING", "REVIEW", "RELEARNING"])
+        self.state_combobox.addItems(["NEW", "LEARNING", "REVIEW", "RELEARNING"])
         self.state_combobox.setCurrentText(state)
         layout.addWidget(self.state_combobox)
         

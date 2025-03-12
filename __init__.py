@@ -100,14 +100,21 @@ from anki.hooks import wrap
 from aqt.utils import showInfo, showText, tooltip, qconnect
 from anki.hooks import addHook
 from anki import hooks
+
+
+
+
 import json
 from enum import Enum
 
-from application.MiddleEnd.MasteryCardGrader import masteryCardAddon
+sys.path.append(os.path.dirname(__file__))
+
+# from application.MiddleEnd.MasteryCardGrader import masteryCardAddon
+from application.MiddleEnd.MasteryCardGraderWCustomData import masteryCardGrader, masteryCardAdder
 from application.MiddleEnd.MasteryDatahandler import masteryDatahandler
 
 
-sys.path.append(os.path.dirname(__file__))
+
 
 
 #########################################################
@@ -116,6 +123,12 @@ sys.path.append(os.path.dirname(__file__))
 
 
 
+# class _BrowserDidFetchColumnsHook:
+#     """Allows you to add custom columns to the browser.
+
+
+# class _DeckOptionsDidLoadHook:
+#     """Can be used to inject extra options into the config screen.
 
 
 
@@ -153,34 +166,36 @@ sys.path.append(os.path.dirname(__file__))
 def deck_check_then_call(call_back, *args, **kwargs):
     # Example condition
     current_deck_id = mw.col.decks.get_current_id()
-    print(current_deck_id)
+    # print(current_deck_id)
     
     info = f"DECKIDCURT: {type(current_deck_id)} | {current_deck_id} | InMASTERY: {masteryDatahandler.is_deck_in_mastery(str(current_deck_id))}"
     
-    print(info)
+    # print(info)
     tooltip(info)
     
     if masteryDatahandler.is_deck_in_mastery(str(current_deck_id)):
     # if some_value:  # Replace `some_value` with your actual condition
         return call_back(*args, **kwargs)  # Call the callback with optional arguments
     else:
-        print("Condition not met. Callback not executed.")
+        print("Deck not assigned mastery: Callback not executed.")
         
 gui_hooks.main_window_did_init.append(lambda: masteryDatahandler.load_config(mw.addonManager.getConfig(__name__)))
 
 # Update the cards Mastery tag apon anwsering again -1 or good +1
 # gui_hooks.reviewer_did_init()
 gui_hooks.reviewer_did_answer_card.append(
-    lambda *args, **kwargs: deck_check_then_call(masteryCardAddon.on_card_grade, *args, **kwargs)
+    lambda *args, **kwargs: deck_check_then_call(masteryCardGrader.on_card_grade, *args, **kwargs)
 )
 
 # Adding a new note will set first level tag and first card type "Unlocked", other card types with be suspended "Locked"
+
 gui_hooks.add_cards_did_add_note.append(
-    lambda *args, **kwargs: deck_check_then_call(masteryCardAddon.set_up_mastery_of_note, *args, **kwargs)
+    lambda *args, **kwargs: deck_check_then_call(masteryCardAdder.add_note_with_mastery, *args, **kwargs)
     )
 
 # # Allows for updating configs while app is running
 mw.addonManager.setConfigUpdatedAction(__name__, masteryDatahandler.on_config_update)
+
 
 
 from application.FrontEnd.presentation.MasterySetupWindow import MasterySetupWindow
