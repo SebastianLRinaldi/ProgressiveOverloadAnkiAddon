@@ -63,28 +63,13 @@ class MasterySharedUtils:
     def get_card_success_count(self, card: Card):
         data = json.loads(card.custom_data or '{}')
         return data.get('cardsct', 0)
+    
+    
+    def set_card_due_date_tomorrow(self, active_card:Card):
+        active_card.due = mw.col.sched.today + 1
+        mw.col.update_card(active_card)
 
-    # def suspend_unsuspend_a_card(self, note:Note, card: Card, success_count):
-    #     template_name = card.template()['name']
-    #     ntID = note.note_type()['id']
-    #     min_level = masteryDatahandler.get_note_type_template_min_level(ntID, template_name)
-    #     max_level = masteryDatahandler.get_note_type_template_max_level(ntID, template_name)
-    #     if min_level <= success_count <= max_level:
-    #         if card.queue == -1:
-    #             pass
-    #             # mw.col.sched.unsuspend_cards([card.id])
-    #             # print(f"UNLOCKed ({card.queue}): [{template_name}], [cardID:{card.id}]: {min_level} <= {success_count} <= {max_level}")
-    #             # card.load()
-    #             # mw.col.update_card(card)
-    #     else:
-    #         if card.queue != -1:
-    #             mw.col.sched.suspend_cards([card.id])
-    #             print(f"LOCKed ({card.queue}): [{template_name}], [cardID:{card.id}]: {min_level} <= {success_count} <= {max_level}")
-    #             mw.col.update_card(card)
-    #             card.load()
-    #     user = input("PAUSE")
-
-    def suspend_unsuspend_cards(self, note:Note, success_count):
+    def suspend_unsuspend_cards_ruled(self, note:Note, success_count):
         cards_to_suspend = []
         cards_to_unsuspend = []
         for card in note.cards():
@@ -92,31 +77,38 @@ class MasterySharedUtils:
             ntID = note.note_type()['id']
             min_level = masteryDatahandler.get_note_type_template_min_level(ntID, template_name)
             max_level = masteryDatahandler.get_note_type_template_max_level(ntID, template_name)
-            if min_level <= success_count <= max_level:
-                if card.queue == -1:
-                    cards_to_unsuspend.append(card.id)
-            else:
-                if card.queue != -1:
+            unlocked = min_level <= success_count <= max_level
+            suspended = card.queue == -1  # Suspended cards have queue -1
+            if unlocked and suspended:
+                # if not card.reps:
+                #     card.due = mw.col.sched.today + 1
+                #     mw.col.update_card(card)
+                    # mw.col.update_cards(note.cards())
+                cards_to_unsuspend.append(card.id)
+            elif not unlocked and not suspended:
                     cards_to_suspend.append(card.id)
         print(f"UNLK: {cards_to_unsuspend}\nLOCK: {cards_to_suspend}")
-        user1 = input("PAUSEBEFORE")
         mw.col.sched.suspend_cards(cards_to_suspend)
-        user2 = input("PAUSEMID")
         mw.col.sched.unsuspend_cards(cards_to_unsuspend)
-        user3 = input("PAUSELAST")
-            
-            
-            
-            
-            
-            # self.suspend_unsuspend_a_card(note, card, success_count)
-        # mw.col.save()
-        # mw.col.sched.unsuspendCards()
-        # mw.reset()
-        # CollectionOp(parent=mw, op=lambda col: None).run_in_background()  # Properly refresh UI
-
         
-        # mw.col.update_cards(note.cards())
+        
+    def suspend_unsuspend_cards_basic(self, note:Note, success_count):
+        cards_to_suspend = []
+        cards_to_unsuspend = []
+        for card in note.cards():
+            template_name = card.template()['name']
+            ntID = note.note_type()['id']
+            min_level = masteryDatahandler.get_note_type_template_min_level(ntID, template_name)
+            max_level = masteryDatahandler.get_note_type_template_max_level(ntID, template_name)
+            unlocked = min_level <= success_count <= max_level
+            suspended = card.queue == -1  # Suspended cards have queue -1
+            if unlocked and suspended:
+                cards_to_unsuspend.append(card.id)
+            elif not unlocked and not suspended:
+                    cards_to_suspend.append(card.id)
+        print(f"UNLK: {cards_to_unsuspend}\nLOCK: {cards_to_suspend}")
+        mw.col.sched.suspend_cards(cards_to_suspend)
+        mw.col.sched.unsuspend_cards(cards_to_unsuspend)
 
 
 
@@ -208,7 +200,7 @@ class mastery_card_add(MasterySharedUtils):
         self.set_mastery_data_levels(ntID)
         self.init_success_count_data(note)
         self.init_state_of_cards(note)
-        self.suspend_unsuspend_cards(note, 0)
+        self.suspend_unsuspend_cards_basic(note, 0)
         
 masteryCardAdder = mastery_card_add()
 
@@ -270,15 +262,12 @@ class mastery_card_grader(MasterySharedUtils):
         status = LevelUpStatus.NO_LEVEL_UP
         if self.did_level_change(old_count, new_count, note):
             active_card: Card = note.cards()[self.level(new_count, note)]
-
-            self.suspend_unsuspend_cards(note, new_count)
-
             if not active_card.reps:
-                active_card.due = mw.col.sched.today + 1
-                # mw.col.update_card(active_card)
+                self.set_card_due_date_tomorrow(active_card)
                 status = LevelUpStatus.LEVEL_CHANGED_REPS_ZERO
             else:
                 status = LevelUpStatus.LEVEL_CHANGED_REPS_NOT_ZERO
+            self.suspend_unsuspend_cards_ruled(note, new_count)
         return status
     
     
