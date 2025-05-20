@@ -139,8 +139,8 @@ class mastery_card_add(MasterySharedUtils):
         return card.odid if card.odid > 0 else card.did
     
     def reps_to_graduate(self, card: Card) -> int:
-
-        group_conf: DeckConfigDict = mw.col.decks.config_dict_for_deck_id(self.current_deck_id(card))
+        # DeckConfigDict
+        group_conf = mw.col.decks.config_dict_for_deck_id(self.current_deck_id(card))
 
         reps_left = len(group_conf["new"]["delays"])
 
