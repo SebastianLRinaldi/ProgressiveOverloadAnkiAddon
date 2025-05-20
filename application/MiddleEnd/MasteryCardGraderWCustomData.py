@@ -286,6 +286,7 @@ class mastery_card_grader(MasterySharedUtils):
             (LevelUpStatus.NO_LEVEL_UP, MasteryUpdate.INCREASE, AnkiButton.GOOD):f"Reps increased: {arrow} | {name}",
             (LevelUpStatus.NO_LEVEL_UP, MasteryUpdate.DECREASE, AnkiButton.AGAIN): f"Reps decreased: {arrow} | {name}",
             (LevelUpStatus.LEVEL_CHANGED_REPS_ZERO, MasteryUpdate.INCREASE, AnkiButton.GOOD): f"Reps increased: {arrow} | 🎉 NEW LEVEL! {name}",
+            (LevelUpStatus.LEVEL_CHANGED_REPS_ZERO, MasteryUpdate.DECREASE, AnkiButton.AGAIN): f"Reps decreased: {arrow} | NEW Added Card (Not Sync to Mastery) {name}",
             (LevelUpStatus.LEVEL_CHANGED_REPS_NOT_ZERO, MasteryUpdate.INCREASE, AnkiButton.GOOD): f"Reps increased: {arrow} | Level ⬆️ {name}",
             (LevelUpStatus.LEVEL_CHANGED_REPS_NOT_ZERO, MasteryUpdate.DECREASE, AnkiButton.AGAIN): f"Reps decreased: {arrow} | Level ⬇️ {name}",
         }
