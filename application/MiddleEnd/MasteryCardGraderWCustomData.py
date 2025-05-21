@@ -36,34 +36,39 @@ from aqt.operations.collection import CollectionOp
 class MasterySharedUtils:
     def set_mastery_data_levels(self, note_type_id_from_anki: int):
         self.MasteryDataLevels = masteryDatahandler.get_all_rep_count_tags(str(note_type_id_from_anki))
-    
+
+    def _get_custom_data(self, card: Card, key: str, default=None):
+        data = json.loads(card.custom_data or '{}')
+        return data.get(key, default)
+
+    def _set_custom_data(self, card: Card, key: str, value):
+        data = json.loads(card.custom_data or '{}')
+        data[key] = value
+        card.custom_data = json.dumps(data)
+        mw.col.update_card(card)
+
     def set_success_count_data(self, card: Card, rep_count_card, rep_count_note):
-        data = json.loads(card.custom_data or '{}')
-        data['cardsct'] = rep_count_card
-        data['notesct'] = rep_count_note
-        card.custom_data = json.dumps(data)
-        mw.col.update_card(card)
-    
+        self._set_custom_data(card, 'cardsct', rep_count_card)
+        self._set_custom_data(card, 'notesct', rep_count_note)
+
     def set_note_success_count(self, card: Card, note_rep_count):
-        data = json.loads(card.custom_data or '{}')
-        data['notesct'] = note_rep_count
-        card.custom_data = json.dumps(data)
-        mw.col.update_card(card)
-        
+        self._set_custom_data(card, 'notesct', note_rep_count)
+
     def set_card_success_count(self, card: Card, card_rep_count):
-        data = json.loads(card.custom_data or '{}')
-        data['cardsct'] = card_rep_count
-        card.custom_data = json.dumps(data)
-        mw.col.update_card(card)
-        
+        self._set_custom_data(card, 'cardsct', card_rep_count)
+
     def get_note_success_count(self, card: Card):
-        data = json.loads(card.custom_data or '{}')
-        return data.get('notesct', 0)
-    
+        return self._get_custom_data(card, 'notesct', 0)
+
     def get_card_success_count(self, card: Card):
-        data = json.loads(card.custom_data or '{}')
-        return data.get('cardsct', 0)
-    
+        return self._get_custom_data(card, 'cardsct', 0)
+
+    def set_locked_status(self, card: Card, locked: bool):
+        self._set_custom_data(card, 'locked', locked)
+
+    def get_locked_status(self, card: Card) -> bool:
+        return self._get_custom_data(card, 'locked', False)
+        
     def set_card_due_date_tomorrow(self, active_card:Card):
         active_card.due = mw.col.sched.today + 1
         mw.col.update_card(active_card)
@@ -142,7 +147,7 @@ class mastery_card_add(MasterySharedUtils):
         # DeckConfigDict
         group_conf = mw.col.decks.config_dict_for_deck_id(self.current_deck_id(card))
 
-        reps_left = len(group_conf["new"]["delays"])
+        reps_left = len(group_conf["new"]["delays"]) # type: ignore
 
         return reps_left * 1000 + reps_left
     
@@ -261,6 +266,7 @@ class mastery_card_grader(MasterySharedUtils):
                 self.set_card_due_date_tomorrow(active_card)
                 status = LevelUpStatus.LEVEL_CHANGED_REPS_ZERO
             else:
+                self.set_card_due_date_tomorrow(active_card)
                 status = LevelUpStatus.LEVEL_CHANGED_REPS_NOT_ZERO
             self.suspend_unsuspend_cards_ruled(note, new_count)
         return status
