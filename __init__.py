@@ -116,6 +116,7 @@ from application.MiddleEnd.MasteryCardGraderWCustomData import masteryCardGrader
 from application.MiddleEnd.MasteryDatahandler import masteryDatahandler
 from application.MiddleEnd.CardLayoutMasteryConnection import CardLayoutMasteryConnection
 from application.MiddleEnd.BrowserTools import *
+from application.MiddleEnd.MasteryColumns import *
 
 
 
@@ -219,7 +220,7 @@ action.triggered.connect(MasterySetupWindow)
 action.triggered.connect(add_note_types_to_comboBox) #TODO Is this needed? I thought we made it so that it loaded always, double check that
 mw.form.menuTools.addAction(action)
 
-
+# card_ids = mw.col.find_notes("prop:cdn:notesct=19")
 
 action = QAction("Show LOADED MasteryData", mw)
 action.triggered.connect(PreviewWindow)
@@ -245,10 +246,12 @@ mw.form.menuTools.addAction(action)
 # mw.deckBrowser.
 # mw.form.menu_Cards.addAction("Review now")
 # gui_hooks.browser_menus_did_init.append(lambda: print("Starter Brwoser"))
+
+
 gui_hooks.browser_menus_did_init.append(on_browser_menus_did_init)
 
 
-
-
+gui_hooks.browser_did_fetch_columns.append(add_column)
+gui_hooks.browser_did_fetch_row.append(fill_column)
 
 
