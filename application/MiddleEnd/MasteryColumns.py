@@ -9,8 +9,8 @@ from application.MiddleEnd.MasteryCardGraderWCustomData import masteryCardAdder
 def add_column(columns: dict[str, Column]) -> None:
         columns["SearchProp"] = Column(
         key="searchprop",
-        cards_mode_label="Card Count",
-        notes_mode_label="Note Count",
+        cards_mode_label="Mastery Count (card & note success)",
+        notes_mode_label="Mastery Count (note success)",
         sorting_cards=1,
         sorting_notes=1,
         # sorting_cards=BC.Sorting.SORTING_NONE,
@@ -19,6 +19,11 @@ def add_column(columns: dict[str, Column]) -> None:
         # alignment=BC.Alignment.ALIGNMENT_START,
     )
 
+
+import re
+
+# def digits_to_letters(n):
+#     return re.sub(r'\d', lambda m: chr(65 + int(m.group())), str(n))
 
 def fill_column(unit_id: int, is_note: bool, row: CellRow, columns: dict[str, Column]) -> CellRow:
     try:
@@ -35,12 +40,14 @@ def fill_column(unit_id: int, is_note: bool, row: CellRow, columns: dict[str, Co
         note = mw.col.get_note(unit_id)  # or however you get the note by card id or note id
         card = note.cards()[0]
         note_sct = masteryCardAdder.get_note_success_count(card)
-        cells[idx].text = f"notesct={note_sct}"
+        # count_as_leter = digits_to_letters(note_sct)
+        cells[idx].text = f"{note_sct}"
         
     else:
         card = mw.col.get_card(unit_id)
         card_sct = masteryCardAdder.get_card_success_count(card)
-        cells[idx].text = f"cardsct={card_sct}" 
+        note_sct = masteryCardAdder.get_note_success_count(card)
+        cells[idx].text = f"cardsct={card_sct} notesct={note_sct}" 
 
 
 

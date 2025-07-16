@@ -135,7 +135,7 @@ class CardLayoutMasteryConnection():
             original_templates = self.original['tmpls']
             updated_order_ids = [t['id'] for t in self.updated['tmpls']]
 
-            synced_reference = self.reorder_reference_json(reference_json, original_templates, updated_order_ids)
+            # synced_reference = self.reorder_reference_json(reference_json, original_templates, updated_order_ids)
 
 
 

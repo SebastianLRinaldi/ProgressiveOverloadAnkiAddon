@@ -37,6 +37,7 @@ class MasterySharedUtils:
     def set_mastery_data_levels(self, note_type_id_from_anki: int):
         self.MasteryDataLevels = masteryDatahandler.get_all_rep_count_tags(str(note_type_id_from_anki))
 
+        
     def _get_custom_data(self, card: Card, key: str, default=None):
         data = json.loads(card.custom_data or '{}')
         return data.get(key, default)
@@ -109,6 +110,15 @@ class MasterySharedUtils:
         print(f"UNLK: {cards_to_unsuspend}\nLOCK: {cards_to_suspend}")
         mw.col.sched.suspend_cards(cards_to_suspend)
         mw.col.sched.unsuspend_cards(cards_to_unsuspend)
+
+
+    def move_note_to_deck(self, note: Note):
+        deck_id = mw.col.decks.id("Jap Mastery::Graduated")
+        note.add_tag("status::understandable")
+        for cid in note.card_ids():
+            card = mw.col.get_card(cid)
+            card.did = deck_id
+            mw.col.update_card(card)
 
 
 
@@ -269,6 +279,37 @@ class mastery_card_grader(MasterySharedUtils):
                 self.set_card_due_date_tomorrow(active_card)
                 status = LevelUpStatus.LEVEL_CHANGED_REPS_NOT_ZERO
             self.suspend_unsuspend_cards_ruled(note, new_count)
+
+
+        # Move to new deck if it's the final level
+        """
+        #TODO will want this to be 
+        # - once you reach the rep range of the last level, 
+        # - set to a certain rep, 
+        # - or once you get to max reps of mastery of the last level
+
+        # TODO once that graduation has been reach
+        # - we can suspend or delete cards
+        # - we can move them to another deck and leave the last level or a specifc level unsuspened?
+        # - we can randomly unsuspend levels
+        # - unsuspend all levels
+        """
+        # max_level = len(self.MasteryDataLevels)-1
+
+        # if old_count >= max_level:
+        #     print("grad!")
+        #     self.move_note_to_deck(note)  # change to your target deck name
+
+
+        max_level = 20 
+
+        if new_count >= max_level:
+            print("grad!")
+            self.move_note_to_deck(note)  # change to your target deck name
+
+
+
+            
         return status
     
     
@@ -288,7 +329,7 @@ class mastery_card_grader(MasterySharedUtils):
 
         conditions_to_messages = {
             (LevelUpStatus.NO_LEVEL_UP, MasteryUpdate.STAY, AnkiButton.AGAIN): f"Reps min reached: {same} | {name}",
-            (LevelUpStatus.NO_LEVEL_UP, MasteryUpdate.STAY, AnkiButton.GOOD): f"Reps max reached: {same} | {name}",
+            (LevelUpStatus.NO_LEVEL_UP, MasteryUpdate.STAY, AnkiButton.GOOD): f"Reps max reached (GRAD!): {same} | {name}",
             (LevelUpStatus.NO_LEVEL_UP, MasteryUpdate.INCREASE, AnkiButton.GOOD):f"Reps increased: {arrow} | {name}",
             (LevelUpStatus.NO_LEVEL_UP, MasteryUpdate.DECREASE, AnkiButton.AGAIN): f"Reps decreased: {arrow} | {name}",
             (LevelUpStatus.LEVEL_CHANGED_REPS_ZERO, MasteryUpdate.INCREASE, AnkiButton.GOOD): f"Reps increased: {arrow} | 🎉 NEW LEVEL! {name}",

@@ -21,7 +21,7 @@ from aqt.browser import Browser
 
 
 
-from application.MiddleEnd.MasteryCardGraderWCustomData import masteryCardGrader, masteryCardAdder
+from application.MiddleEnd.MasteryCardGraderWCustomData import masteryCardGrader, masteryCardAdder, masteryDatahandler
 
 def with_undo_entry(undo_msg: str):
     def decorator(function: Callable):
@@ -104,17 +104,6 @@ def get_cards_to_update_custom_data(browser: Browser):
         ).run_in_background()
 
 
-def on_browser_menus_did_init(browser: Browser) -> None:
-    action = browser.form.menu_Cards.addAction("Set Custom Data Blank 0-0")
-    qconnect(action.triggered, functools.partial(get_cards_to_update_custom_data, browser=browser))
-
-    action = browser.form.menu_Cards.addAction("Resuspension Of Levels with Set Note Count")
-    qconnect(action.triggered, functools.partial(get_note_to_update_suspension_stats, browser=browser))
-
-
-
-
-
 
 
 
@@ -185,3 +174,40 @@ def get_note_to_update_suspension_stats(browser: Browser):
 
 
 
+def move_graduated_notes(col: Collection, notes: Sequence[Note]) -> OpChanges:
+    moved_notes = []
+    for note in notes:
+        max_level = 20
+        for card in note.cards():
+            note_level = masteryCardAdder.get_note_success_count(card)
+            if note_level >= max_level or note.has_tag("status::understandable"):
+                print(f"Graduating note {note.id} with level {note_level}")
+                masteryCardAdder.move_note_to_deck(note)
+                moved_notes.append(note)
+                break  # only need to move once per note
+
+    return col.update_notes(moved_notes)
+
+def get_note_to_graduate(browser: Browser):
+    selected_notes = list(get_selected_notes(browser))
+
+    if not selected_notes:
+        notify_user("No Notes selected. Nothing to do.")
+    else:
+        CollectionOp(parent=browser, 
+                    op=lambda col: move_graduated_notes(col, selected_notes)).success(
+            lambda _: notify_user("Graduated eligible notes.")
+        ).run_in_background()
+
+
+
+
+def on_browser_menus_did_init(browser: Browser) -> None:
+    action = browser.form.menu_Cards.addAction("Set Custom Data Blank 0-0")
+    qconnect(action.triggered, functools.partial(get_cards_to_update_custom_data, browser=browser))
+
+    action = browser.form.menu_Cards.addAction("Resuspension Of Levels with Set Note Count")
+    qconnect(action.triggered, functools.partial(get_note_to_update_suspension_stats, browser=browser))
+
+    action = browser.form.menu_Cards.addAction("Graduate Notes to New Deck")
+    qconnect(action.triggered, functools.partial(get_note_to_graduate, browser=browser))

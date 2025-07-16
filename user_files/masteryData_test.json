@@ -7,6 +7,14 @@
         "1716367443920": {
             "deck_id": "1716367443920",
             "deck_name": "test Deck"
+        },
+        "1752655495938": {
+            "deck_id": "1752655495938",
+            "deck_name": "TestSmall"
+        },
+        "1752659420881": {
+            "deck_id": "1752659420881",
+            "deck_name": "(SMALL TEST)"
         }
     },
     "note_types": {
@@ -122,6 +130,57 @@
                     "template_reps": 2,
                     "min_level": 6,
                     "max_level": 7
+                }
+            }
+        },
+        "1752655513623": {
+            "note_type_id": "1752655513623",
+            "note_type_name": "(TEST SMALL)",
+            "tag_creation_settings": {
+                "tag_prefix": "level_",
+                "start_rep": 0,
+                "rep_count_tags": [
+                    "level_0",
+                    "level_1",
+                    "level_2",
+                    "level_3"
+                ]
+            },
+            "templates": {
+                "Card 1": {
+                    "template_name": "Card 1",
+                    "init_card_state": "AUTO",
+                    "template_reps": 2,
+                    "min_level": 0,
+                    "max_level": 1
+                },
+                "Card 2": {
+                    "template_name": "Card 2",
+                    "init_card_state": "AUTO",
+                    "template_reps": 2,
+                    "min_level": 2,
+                    "max_level": 3
+                }
+            }
+        },
+        "1752659456606": {
+            "note_type_id": "1752659456606",
+            "note_type_name": "(small type test)",
+            "tag_creation_settings": {
+                "tag_prefix": "level_",
+                "start_rep": 0,
+                "rep_count_tags": [
+                    "level_0",
+                    "level_1"
+                ]
+            },
+            "templates": {
+                "Card 1": {
+                    "template_name": "Card 1",
+                    "init_card_state": "AUTO",
+                    "template_reps": 2,
+                    "min_level": 0,
+                    "max_level": 1
                 }
             }
         }
