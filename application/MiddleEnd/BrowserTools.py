@@ -126,7 +126,7 @@ def format_message_update_suspension(accepted: Sized) -> str:
 
 def set_correct_note_count(col, note: Note):
     note_count = None
-    target_template_name= '1.Encoding/Exposure'
+    target_template_name= 'Level 1'
     # Find the card with the target template name and get its note_count
     for card in note.cards():
         if card.template()['name'] == target_template_name:
@@ -138,11 +138,13 @@ def set_correct_note_count(col, note: Note):
         return
     
     # Set this note_count on all cards of the note
+    # ! ONLY need to worry about +/- note count if we add or remove a card
+    # ! For simple moving cards around just to current card note count
     for card in note.cards():
-        masteryCardAdder.set_note_success_count(card, note_count+3)
+        masteryCardAdder.set_note_success_count(card, note_count) # we can +/- here
     
     # Update suspend/unsuspend based on new note_count
-    masteryCardAdder.suspend_unsuspend_cards_ruled(note, note_count+3)
+    masteryCardAdder.suspend_unsuspend_cards_ruled(note, note_count) # do the same amount +/- here
 
 
 
@@ -177,7 +179,7 @@ def get_note_to_update_suspension_stats(browser: Browser):
 def move_graduated_notes(col: Collection, notes: Sequence[Note]) -> OpChanges:
     moved_notes = []
     for note in notes:
-        max_level = 20
+        max_level = 21
         for card in note.cards():
             note_level = masteryCardAdder.get_note_success_count(card)
             if note_level >= max_level or note.has_tag("status::understandable"):

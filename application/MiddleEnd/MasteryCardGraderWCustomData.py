@@ -282,26 +282,7 @@ class mastery_card_grader(MasterySharedUtils):
 
 
         # Move to new deck if it's the final level
-        """
-        #TODO will want this to be 
-        # - once you reach the rep range of the last level, 
-        # - set to a certain rep, 
-        # - or once you get to max reps of mastery of the last level
-
-        # TODO once that graduation has been reach
-        # - we can suspend or delete cards
-        # - we can move them to another deck and leave the last level or a specifc level unsuspened?
-        # - we can randomly unsuspend levels
-        # - unsuspend all levels
-        """
-        # max_level = len(self.MasteryDataLevels)-1
-
-        # if old_count >= max_level:
-        #     print("grad!")
-        #     self.move_note_to_deck(note)  # change to your target deck name
-
-
-        max_level = 20 
+        max_level = 21 
 
         if new_count >= max_level:
             print("grad!")
